@@ -1,0 +1,615 @@
+/* =========================================
+   隊輔管理介面 (Guide Interface)
+   ========================================= */
+
+.guide-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding-bottom: 5rem;
+  background-color: transparent;
+}
+
+.guide-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+.guide-z-top {
+  z-index: 20;
+}
+
+.guide-layout {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* --- 標題區域 --- */
+.guide-header {
+  margin-bottom: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.guide-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #292524 0%, #1c1917 100%);
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+  color: #fbbf24;
+}
+
+.guide-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: #1c1917;
+  margin: 0;
+}
+
+/* --- 登入區塊 --- */
+.guide-login-box {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 2rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.guide-login-group {
+  margin-bottom: 1.5rem;
+}
+
+.guide-label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #57534e;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.guide-input,
+.guide-select {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
+  box-sizing: border-box;
+  background-color: #f5f5f4;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  text-align: center;
+  color: #1c1917;
+}
+
+.guide-input:focus,
+.guide-select:focus {
+  border-color: #fbbf24;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+}
+
+/* --- 儀表板佈局 --- */
+.guide-dashboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* 統一所有區塊之間的垂直間距 */
+  z-index: 10;
+  
+  /* 增加左右 padding，讓內部區塊與邊緣保持距離 */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  /* 確保 padding 不會撐破外層容器的寬度 */
+  box-sizing: border-box; 
+}
+
+.guide-status-bar {
+  background: linear-gradient(to right, #1c1917, #292524);
+  color: white;
+  border-radius: 1.5rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.guide-status-info {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.guide-status-icon {
+  padding: 0.75rem;
+  background: rgba(251, 191, 36, 0.15);
+  border-radius: 1rem;
+  color: #fbbf24;
+}
+
+.guide-status-subtitle {
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.guide-status-title {
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.guide-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem; /* 統一區塊間的間隔 */
+  width: 100%; /* 確保撐滿 */
+}
+
+@media (min-width: 1024px) {
+  .guide-dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; /* 確保與下方 gap 一致 */
+  }
+}
+
+.guide-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f5f5f4;
+  position: relative;
+  
+  /* 新增：確保卡片受控並置中 */
+  width: 100%;
+  max-width: 650px; /* 限制最大寬度 */
+  margin: 0 auto;   /* 讓卡片在容器中完美置中 */
+  box-sizing: border-box;
+}
+
+.guide-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f5f5f4;
+}
+
+.guide-section-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #1c1917;
+  margin: 0;
+}
+
+/* --- 屬性看板 --- */
+.guide-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem; /* 縮小手機版間距，避免 3 個數值卡片太擠 */
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .guide-stat-grid { gap: 1rem; } /* 電腦版恢復原本間距 */
+}
+
+.guide-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 0.5rem;
+  border-radius: 1.25rem;
+  border: 2px solid;
+  transition: transform 0.2s;
+}
+
+.guide-stat-card:hover { transform: translateY(-3px); }
+
+.stat-stamina { background: linear-gradient(145deg, #fff1f2, #ffe4e6); border-color: #fecdd3; }
+.stat-strength { background: linear-gradient(145deg, #fffbeb, #fef3c7); border-color: #fde68a; }
+.stat-magic { background: linear-gradient(145deg, #ecfeff, #cffafe); border-color: #a5f3fc; }
+
+.stat-label { font-weight: 800; font-size: 0.9rem; margin: 0.5rem 0 0.25rem; color: #57534e; }
+.stat-value { font-size: 2rem; font-weight: 900; margin: 0; }
+
+/* --- 快捷加分區塊 --- */
+.guide-calc-space {
+  display: grid;
+  grid-template-columns: 1fr; /* 手機版改為直排，避免撐破畫面 */
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.guide-calc-panel {
+  background: #fafaf9;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e7e5e4;
+  text-align: center;
+}
+
+.guide-calc-label { font-weight: 800; font-size: 0.9rem; color: #78716c; margin-bottom: 0.75rem; display: block; }
+.guide-btn-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap; /* 核心：允許骰子在空間不足時換行 */
+  width: 100%;
+}
+
+.guide-btn-square {
+  flex: 1 1 calc(25% - 0.5rem); /* 讓按鈕具有彈性伸縮空間 */
+  min-width: 2.5rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  background: white;
+  border: 2px solid #e7e5e4;
+  color: #a8a29e;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.guide-btn-square-active-rose { background: #f43f5e; color: white; border-color: #e11d48; transform: scale(1.05); box-shadow: 0 4px 10px rgba(244, 63, 94, 0.3); }
+.guide-btn-square-active-amber { background: #f59e0b; color: white; border-color: #d97706; transform: scale(1.05); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
+.guide-btn-square-active-cyan { background: #06b6d4; color: white; border-color: #0891b2; transform: scale(1.05); box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
+.guide-btn-square-active-indigo { background: #4f46e5; color: white; border-color: #4338ca; transform: scale(1.05); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+
+/* 結果框 */
+.guide-result-box {
+  background: #1c1917;
+  border-radius: 1.25rem;
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  border: 2px solid #fbbf24;
+  box-shadow: 0 10px 20px -5px rgba(251, 191, 36, 0.2);
+}
+
+.guide-result-label { color: #d6d3d1; font-weight: 700; font-size: 0.9rem; margin: 0 0 0.25rem 0; }
+.guide-result-value { color: #fbbf24; font-size: 2.5rem; font-weight: 900; margin: 0; }
+
+/* --- 手動微調區塊 --- */
+.guide-manual-input {
+  font-size: 2.5rem;
+  height: 4.5rem;
+  width: 100%; 
+  max-width: 200px; /* 從 300px 縮小，防止撐破 */
+  margin: 0 auto 1rem auto;
+  border: 2px solid #d6d3d1;
+  background: white;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.guide-adjust-list { display: flex; flex-direction: column; gap: 1rem; }
+
+.guide-adjust-row {
+  display: flex;
+  flex-direction: column; 
+  align-items: stretch;
+  background: #fafaf9;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e7e5e4;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.guide-adjust-title {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 手機版文字置中 */
+  gap: 0.75rem;
+}
+.guide-adjust-name { font-weight: 900; font-size: 1.25rem; color: #292524; }
+.guide-adjust-actions {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.guide-adjust-actions button {
+  flex: 1; /* 讓扣除跟增加按鈕完美 1:1 平分寬度 */
+  padding: 0.75rem 0.5rem; 
+}
+
+@media (min-width: 640px) {
+  .guide-adjust-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .guide-adjust-title { justify-content: flex-start; }
+  .guide-adjust-actions { width: auto; gap: 0.75rem; }
+  .guide-adjust-actions button { padding: 0.75rem 1rem; }
+}
+
+/* --- 通用按鈕 --- */
+.guide-op-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  border-radius: 1rem;
+  transition: all 0.2s active;
+}
+
+.guide-op-btn:hover { transform: translateY(-2px); }
+.guide-op-btn:active { transform: translateY(1px) scale(0.97); }
+
+.guide-btn-login { width: 100%; height: 3.5rem; background: #1c1917; color: white; font-size: 1.1rem; margin-top: 1rem; }
+.guide-btn-logout { background: rgba(255, 255, 255, 0.1); color: white; padding: 0.5rem 1rem; font-size: 0.9rem; }
+.guide-btn-logout:hover { background: #ef4444; }
+
+.guide-btn-large { flex: 1; flex-direction: column; height: 5rem; color: white; }
+.guide-btn-medium { padding: 0.75rem 1rem; color: white; font-size: 1rem; }
+
+/* 顏色與 Icon 輔助 (配合動態 className 渲染) */
+.bg-rose { background: #f43f5e; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3); }
+.bg-amber { background: #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); color: #1c1917; }
+.bg-cyan { background: #06b6d4; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); }
+.bg-red-light { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+.bg-emerald { background: #10b981; }
+
+.text-rose { color: #f43f5e; }
+.text-amber { color: #d97706; }
+.text-cyan { color: #06b6d4; }
+.icon-amber { color: #f59e0b; }
+.icon-indigo { color: #4f46e5; }
+.icon-emerald { color: #10b981; }
+
+/* --- 執行確認 Modal --- */
+.guide-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 25, 23, 0.7);
+  backdrop-filter: blur(5px);
+  padding: 1rem;
+}
+
+.guide-modal-content {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.guide-modal-icon { display: inline-block; padding: 1rem; border-radius: 50%; margin-bottom: 1rem; }
+.guide-modal-title { font-size: 1.75rem; font-weight: 900; margin: 0 0 1.5rem 0; color: #1c1917; }
+.guide-modal-desc-text { font-size: 1.5rem; font-weight: 900; color: #44403c; margin-bottom: 2rem; }
+
+.guide-modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  
+  /* 新增：確保寬度填滿，並將內容往兩側對齊 */
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* 新增這個選擇器：讓彈出視窗內的按鈕自動平分剩餘寬度 (1:1 大小) */
+.guide-modal-actions button {
+  flex: 1;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 女神的祝福開關組件 --- */
+.guide-toggle-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafaf9;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e7e5e4;
+  margin-top: 1rem;
+}
+
+.guide-toggle-label {
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #292524;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.guide-toggle-switch {
+  position: relative;
+  width: 64px;
+  height: 36px;
+  background-color: #d6d3d1;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.guide-toggle-switch.active {
+  background-color: #fbbf24;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+}
+
+.guide-toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.guide-toggle-switch.active .guide-toggle-slider {
+  transform: translateX(28px);
+}
+
+/* --- 關卡通關進度管理按鈕 --- */
+.guide-stage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  font-weight: 900;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.guide-stage-btn:active {
+  transform: scale(0.95);
+}
+
+.guide-stage-btn-minus {
+  background-color: #f5f5f4;
+  color: #78716c;
+  border-color: #d6d3d1;
+}
+
+.guide-stage-btn-minus:hover {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border-color: #fca5a5;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+
+.guide-stage-btn-plus {
+  background-color: #f5f5f4;
+  color: #78716c;
+  border-color: #d6d3d1;
+}
+
+.guide-stage-btn-plus:hover {
+  background-color: #ecfdf5;
+  color: #10b981;
+  border-color: #6ee7b7;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+/* --- 獨立基礎數值調整區塊 --- */
+.guide-base-val-panel {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e7e5e4;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.guide-base-val-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.guide-base-val-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  border-radius: 1rem;
+  border: 2px solid;
+  transition: all 0.2s;
+}
+
+.guide-base-val-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.guide-base-val-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 99px;
+  padding: 0.25rem;
+  width: 100%;
+  max-width: 90px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.guide-base-val-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guide-base-val-btn:active {
+  transform: scale(0.85);
+}
+
+.guide-base-val-num {
+  font-size: 1.25rem;
+  font-weight: 900;
+  min-width: 1.5rem;
+  text-align: center;
+}

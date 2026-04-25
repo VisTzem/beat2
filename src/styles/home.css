@@ -1,0 +1,101 @@
+/* =========================================
+   首頁 (Home Page) 彈性按鈕
+   ========================================= */
+
+/* 1. 僅定義彈性動畫與縮放邏輯 */
+.elastic-card {
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* 只有帶有 .elastic-card 類別的元素在點擊時才會縮放 */
+.elastic-card:active {
+  transition: transform 0.1s ease-out;
+  transform: scale(0.96) !important; 
+}
+
+/* 2. 獨立的光暈效果 (不含縮放) */
+.glow-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  padding: 3px;
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(255, 255, 255, 0.4), 
+    transparent 40%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+.glow-card-dark::before {
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(251, 191, 36, 0.6),
+    transparent 40%
+  );
+}
+
+.home-nav-grid {
+  display: flex;
+  flex-direction: column; /* 手機版直排 */
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 60px; /* 手機版上下間隔 60px */
+  margin-top: 50px;
+}
+
+@media (min-width: 768px) {
+  .guide-calc-space {
+    grid-template-columns: 1fr 1fr; /* 寬螢幕時恢復橫排 */
+  }
+}
+
+.btn-console-launch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto 0;       
+  width: 200px;              
+  padding: 0.8rem 0;
+  background-color: #ffffff; 
+  color: #1c1917;            
+  border: 2px solid #e7e5e4; 
+  border-radius: 0.75rem;    
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
+}
+
+.btn-console-launch:hover {
+  background-color: #f5f5f4; 
+  border-color: #1c1917;    
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-console-launch:active {
+  transform: translateY(0);
+  background-color: #e7e5e4;
+}

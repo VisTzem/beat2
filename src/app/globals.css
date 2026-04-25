@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* 引入拆分後的各個模組樣式 */
+@import '../styles/base.css';
+@import '../styles/layout.css';
+@import '../styles/home.css';
+@import '../styles/member.css';
+@import '../styles/guide.css';

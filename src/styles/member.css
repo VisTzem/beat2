@@ -1,0 +1,321 @@
+/* src/styles/member.css */
+
+/* =========================================
+   古代布告欄樣式 (Ancient Wood Board) - 靈魂級優化
+   ========================================= */
+
+:root {
+  --wood-plank-bg: #d7bfa6;    
+  --wood-grain-dark: #a1887f; 
+  --wood-grain-light: #e0d1c1; 
+  --wood-frame-dark: #4e342e;  
+  
+  --nail-head: #37474f;       
+  --burnt-text: #1a1a1a;      
+  --carved-highlight: rgba(255, 255, 255, 0.3); 
+}
+
+.member-main-bg {
+  background-color: #f5f0e1;
+  min-height: 100dvh; 
+  width: 100%;
+  overflow-x: hidden; 
+  background-repeat: repeat;
+  background-attachment: scroll; 
+  
+  background-image: 
+    radial-gradient(#e0d7c3 1px, transparent 1px),
+    linear-gradient(135deg, #eee6d3 25%, transparent 25%),
+    linear-gradient(225deg, #eee6d3 25%, transparent 25%),
+    linear-gradient(45deg, #eee6d3 25%, transparent 25%),
+    linear-gradient(315deg, #eee6d3 25%, transparent 25%);
+  background-size: 20px 20px, 40px 40px, 40px 40px, 40px 40px, 40px 40px;
+}
+
+.ancient-board-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  border: 15px solid var(--wood-frame-dark);
+  border-image: linear-gradient(
+    45deg,
+    var(--wood-frame-dark) 25%,
+    transparent 25%,
+    transparent 75%,
+    var(--wood-frame-dark) 75%
+  );
+  border-image-slice: 1;
+  padding: 3rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7), 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.ancient-board-header {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, 1fr);
+  align-items: center;
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #d7ccc8;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--wood-frame-dark);
+  border-radius: 4px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ancient-header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.ancient-header-cell.align-left {
+  justify-content: flex-start;
+}
+
+.wood-plank {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--wood-plank-bg);
+  background-image: 
+    repeating-linear-gradient(
+      -35deg,
+      rgba(224, 209, 193, 0.1),
+      rgba(224, 209, 193, 0.1) 2px,
+      transparent 2px,
+      transparent 20px
+    ),
+    repeating-radial-gradient(
+      ellipse at 30% 120%,
+      transparent 0px,
+      transparent 40px,
+      rgba(161, 136, 127, 0.15) 40px,
+      rgba(161, 136, 127, 0.15) 41px,
+      transparent 41px,
+      transparent 80px
+    ),
+    radial-gradient(
+      circle at 75% 25%,
+      rgba(78, 52, 46, 0.1) 0%,
+      rgba(121, 85, 72, 0.1) 20%,
+      transparent 40%
+    );
+  
+  border: 1px solid #c2a188;
+  border-bottom: 6px solid #a6846c; 
+  border-right: 3px solid #b3917a; 
+  
+  padding: 2.5rem 2rem;
+  margin-bottom: 1.8rem; 
+  border-radius: 8px;
+  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.6);
+  transform-origin: center center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wood-plank-stats {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, 1fr);
+  align-items: center;
+  width: 100%;
+}
+
+.wood-plank:nth-child(even) { transform: rotate(0.8deg) skewX(-1.5deg); }
+.wood-plank:nth-child(odd) { transform: rotate(-0.5deg) skewX(1deg); }
+.wood-plank:nth-child(3n) { transform: rotate(-1deg) translateY(2px); }
+.wood-plank:nth-child(5n) { transform: rotate(1.2deg) skewX(-2deg); }
+
+.wood-plank:hover {
+  transform: translateY(-8px) rotate(0deg) skewX(0deg) scale(1.02) !important;
+  box-shadow: 0 25px 35px -5px rgba(0, 0, 0, 0.7);
+  z-index: 10; 
+}
+
+.wood-plank::before,
+.wood-plank::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--nail-head);
+  background-image: radial-gradient(circle at 30% 30%, #546e7a, var(--nail-head));
+  border-radius: 50%;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8), inset 1px 1px 2px rgba(255,255,255,0.2);
+}
+.wood-plank::before { top: 12px; left: 15px; }
+.wood-plank::after { top: 12px; right: 15px; }
+
+.plank-stat-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; 
+}
+
+.huge-stat {
+  font-size: 6.5rem; 
+  line-height: 1;
+  font-weight: 900;
+  color: var(--burnt-text);
+  text-shadow: 
+    1px 1px 0 rgba(0,0,0,0.8),
+    2px 2px 0 rgba(0,0,0,0.5),
+    -1px -1px 0 rgba(255,255,255,0.2),
+    -2px -2px 1px rgba(255,255,255,0.1);
+  position: relative;
+  display: inline-block;
+}
+
+.member-group-name {
+  font-weight: 900;
+  font-size: 1.6rem;
+  color: #261a12; 
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
+}
+
+.member-group-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 12px;
+  background: var(--wood-frame-dark);
+  color: #d7ccc8;
+  font-size: 1.5rem;
+  border: 2px solid #2a1b1b;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+  .ancient-board-wrapper {
+    /* 改用 100% 寬度，讓對稱性交給外層容器的 Padding 決定 */
+    width: 100%; 
+    max-width: calc(100vw - 2rem); 
+    margin: 0 auto;
+    padding: 1rem 0.5rem;
+    border-width: 6px;
+    box-sizing: border-box; /* 確保邊框不會撐大寬度 */
+  }
+  
+  .ancient-board-header { display: none; }
+  
+  .wood-plank {
+    padding: 1rem 0.5rem;
+    border-bottom-width: 4px;
+    margin-bottom: 1rem;
+    transform: rotate(0deg) skewX(0deg) !important;
+  }
+  
+  .wood-plank-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .member-group-name {
+    grid-column: 1 / -1;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px dashed #a1887f;
+    font-size: 1.25rem;
+  }
+  
+  .member-group-badge {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.1rem;
+  }
+  
+  .plank-stat-cell {
+    flex-direction: column;
+    gap: 0.25rem;
+    background: rgba(255, 255, 255, 0.3); 
+    padding: 0.5rem 0.25rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  
+  .huge-stat { 
+    /* 大幅縮小手機版數字，防止 3 位數（如 125）把看板撐開 */
+    font-size: 2.5rem; 
+    letter-spacing: -0.02em;
+  }
+  
+  .member-stat-label-mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-bottom: -0.25rem;
+    text-shadow: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .member-stat-label-mobile { display: none; }
+}
+
+/* =========================================
+   【新增】女神的祝福：聖光邊框與白黃色飄動粒子效果
+   ========================================= */
+@keyframes holyLightGlow {
+  0% {
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    border-color: rgba(251, 191, 36, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.9), inset 0 0 25px rgba(255, 240, 150, 0.7);
+    border-color: rgba(255, 255, 255, 1);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    border-color: rgba(251, 191, 36, 0.5);
+  }
+}
+
+.wood-plank.goddess-blessing {
+  border: 4px solid rgba(251, 191, 36, 0.8) !important;
+  animation: holyLightGlow 3s infinite alternate ease-in-out;
+  background-color: #e8d8c8 !important; 
+  position: relative;
+}
+
+.holy-particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; 
+  overflow: hidden; 
+  z-index: 1; 
+  border-radius: 8px; 
+}
+
+.holy-particle {
+  position: absolute;
+  width: 4px; 
+  height: 4px;
+  background-color: #fef3c7; 
+  border-radius: 50%; 
+  box-shadow: 0 0 5px #fef3c7, 0 0 10px #f59e0b; 
+  opacity: 0; 
+  animation: holyParticleFlow linear infinite;
+}
+
+@keyframes holyParticleFlow {
+  0% { opacity: 0; transform: translate(0, 0) scale(1); }
+  10% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--p-vx), var(--p-vy)) scale(0); }
+}

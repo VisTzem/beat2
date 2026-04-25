@@ -1,0 +1,375 @@
+"use client";
+
+export const runtime = 'edge';
+
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { ref, onValue, update, goOnline, goOffline } from "firebase/database";
+import { onAuthStateChanged } from "firebase/auth";
+import { db, auth } from "@/lib/firebase";
+import { TribeStats } from "@/types";
+import { Sparkles, LogOut, Dices, ShieldCheck, Plus, Minus, Home, Zap, Sword, Heart, TrendingUp, Flag } from "lucide-react";
+import Link from "next/link";
+
+export default function GuideDashboardPage() {
+  const router = useRouter();
+  const params = useParams();
+  const groupId = params.groupId as string;
+
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  
+  const [selectedStageType, setSelectedStageType] = useState<'stamina' | 'strength' | 'magic'>('stamina');
+  const [currentStats, setCurrentStats] = useState<TribeStats>({ stamina: 0, strength: 0, magic: 0, goddessBlessing: false });
+  const [difficulty, setDifficulty] = useState(1);
+  const [diceRoll, setDiceRoll] = useState(1);
+  const [manualValue, setManualValue] = useState<string>("5");
+  const [confirmAction, setConfirmAction] = useState<any | null>(null);
+  const [baseValues, setBaseValues] = useState({ stamina: 20, strength: 10, magic: 10 });
+
+// 1. 授權與路由合法性檢查
+  useEffect(() => {
+    const allowedGroups = ["group1", "group2", "group3", "group4", "group5", "group6"];
+    if (!allowedGroups.includes(groupId)) {
+      router.push('/guide');
+      return;
+    }
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // 沒登入，踢回首頁
+        router.push('/guide');
+      } else {
+        // ▼ 有登入，解除載入狀態，放行畫面
+        setIsCheckingAuth(false);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, [groupId, router]);
+
+  // 2. Firebase 資料同步
+  useEffect(() => {
+    if (!groupId) return;
+    
+    goOnline(db);
+    const unsubscribe = onValue(ref(db, `tribes/${groupId}`), (snapshot) => {
+      if (snapshot.val()) setCurrentStats(snapshot.val());
+    });
+
+    const handleVisibility = () => {
+      if (document.hidden) goOffline(db);
+      else goOnline(db);
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    
+    return () => {
+      unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [groupId]);
+
+  const executeAction = async () => {
+    if (!confirmAction) return;
+    // 限制寫入數值區間 (0 - 9999) 防止資料污染
+    const targetStats = confirmAction.payload.targetStats;
+    await update(ref(db, `tribes/${groupId}`), targetStats);
+    setConfirmAction(null); 
+  };
+
+  const autoGain = baseValues[selectedStageType] + (difficulty * diceRoll);
+
+  const triggerConfirm = (stat: keyof TribeStats, newVal: number, title: string, colorTheme: string, Icon: React.ElementType) => {
+    // 前端基本數值防呆
+    const finalVal = Math.min(Math.max(0, newVal), 9999);
+    setConfirmAction({ 
+      type: 'update', 
+      payload: { title, colorTheme, targetStats: { ...currentStats, [stat]: finalVal }, icon: Icon } 
+    });
+  };
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    document.cookie = "tribe_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push('/guide');
+  };
+
+  const toggleBlessing = async () => {
+    const newVal = !currentStats.goddessBlessing;
+    await update(ref(db, `tribes/${groupId}`), { goddessBlessing: newVal });
+  };
+
+  const themeColors: Record<string, { bg: string, text: string, lightBg: string, btnText: string }> = {
+    rose: { bg: '#f43f5e', text: '#f43f5e', lightBg: '#ffe4e6', btnText: 'white' },
+    amber: { bg: '#f59e0b', text: '#d97706', lightBg: '#fef3c7', btnText: '#1c1917' },
+    cyan: { bg: '#06b6d4', text: '#06b6d4', lightBg: '#cffafe', btnText: 'white' },
+    red: { bg: '#ef4444', text: '#ef4444', lightBg: '#fee2e2', btnText: 'white' },
+    emerald: { bg: '#10b981', text: '#10b981', lightBg: '#d1fae5', btnText: 'white' },
+    stone: { bg: '#78716c', text: '#78716c', lightBg: '#f5f5f4', btnText: 'white' }
+  };
+
+  if (isCheckingAuth) {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      正在驗證身分...
+    </div>
+  );
+}
+
+  return (
+    <main className="guide-main">
+      <Link href="/" className="btn-back-home guide-z-top">
+        <Home size={18} /> 返回主選單
+      </Link>
+
+      <div className="layout-container guide-layout">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="guide-dashboard">
+          
+          <div className="guide-status-bar" style={{ marginTop: '2rem' }}>
+            <div className="guide-status-info">
+              <div className="guide-status-icon"><ShieldCheck size={32} /></div>
+              <div>
+                <p className="guide-status-subtitle">正在管理</p>
+                <h2 className="guide-status-title">第 {groupId.replace('group','')} 組部落</h2>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="guide-op-btn guide-btn-logout">
+              <LogOut size={18}/> 登出管理員
+            </button>
+          </div>
+
+          <div className="guide-dashboard-grid">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* 當前屬性數值卡片 */}
+              <div className="guide-card"> 
+                <div className="guide-section-header">
+                  <Sparkles size={24} className="icon-amber"/>
+                  <h3 className="guide-section-title">當前屬性數值</h3>
+                </div>
+                <div className="guide-stat-grid"> 
+                  <div className="guide-stat-card stat-stamina">
+                    <Heart className="text-rose" size={28}/>
+                    <span className="stat-label">體力</span>
+                    <p className="stat-value text-rose">{currentStats.stamina || 0}</p>
+                  </div>
+                  <div className="guide-stat-card stat-strength">
+                    <Sword className="text-amber" size={28}/>
+                    <span className="stat-label">力量</span>
+                    <p className="stat-value text-amber">{currentStats.strength || 0}</p>
+                  </div>
+                  <div className="guide-stat-card stat-magic">
+                    <Zap className="text-cyan" size={28}/>
+                    <span className="stat-label">魔力</span>
+                    <p className="stat-value text-cyan">{currentStats.magic || 0}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 快捷事件結算 */}
+              <div className="guide-card">
+                <div className="guide-section-header">
+                  <Dices size={24} className="icon-indigo"/>
+                  <h3 className="guide-section-title">快捷事件結算</h3>
+                </div>
+                
+                <div className="guide-calc-panel" style={{ marginBottom: '1rem' }}>
+                  <label className="guide-calc-label">選擇關卡類型</label>
+                  <div className="guide-btn-row">
+                    <button onClick={() => setSelectedStageType('stamina')} className={`guide-btn-square ${selectedStageType === 'stamina' ? 'guide-btn-square-active-rose' : ''}`}>體力</button>
+                    <button onClick={() => setSelectedStageType('strength')} className={`guide-btn-square ${selectedStageType === 'strength' ? 'guide-btn-square-active-amber' : ''}`}>力量</button>
+                    <button onClick={() => setSelectedStageType('magic')} className={`guide-btn-square ${selectedStageType === 'magic' ? 'guide-btn-square-active-cyan' : ''}`}>魔力</button>
+                  </div>
+                </div>
+
+                <div className="guide-base-val-panel">
+                  <label className="guide-calc-label">關卡預設基礎值</label>
+                  <div className="guide-base-val-grid">
+                    <div className="guide-base-val-card border-rose-200 bg-rose-50">
+                      <span className="guide-base-val-title text-rose-600">體力</span>
+                      <div className="guide-base-val-controls">
+                        <button onClick={() => setBaseValues(prev => ({...prev, stamina: Math.max(0, prev.stamina - 1)}))} className="guide-base-val-btn text-rose-500">
+                          <Minus size={16} />
+                        </button>
+                        <span className="guide-base-val-num text-rose-600">{baseValues.stamina}</span>
+                        <button onClick={() => setBaseValues(prev => ({...prev, stamina: prev.stamina + 1}))} className="guide-base-val-btn text-rose-500">
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="guide-base-val-card border-amber-200 bg-amber-50">
+                      <span className="guide-base-val-title text-amber-600">力量</span>
+                      <div className="guide-base-val-controls">
+                        <button onClick={() => setBaseValues(prev => ({...prev, strength: Math.max(0, prev.strength - 1)}))} className="guide-base-val-btn text-amber-500">
+                          <Minus size={16} />
+                        </button>
+                        <span className="guide-base-val-num text-amber-600">{baseValues.strength}</span>
+                        <button onClick={() => setBaseValues(prev => ({...prev, strength: prev.strength + 1}))} className="guide-base-val-btn text-amber-500">
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="guide-base-val-card border-cyan-200 bg-cyan-50">
+                      <span className="guide-base-val-title text-cyan-600">魔力</span>
+                      <div className="guide-base-val-controls">
+                        <button onClick={() => setBaseValues(prev => ({...prev, magic: Math.max(0, prev.magic - 1)}))} className="guide-base-val-btn text-cyan-500">
+                          <Minus size={16} />
+                        </button>
+                        <span className="guide-base-val-num text-cyan-600">{baseValues.magic}</span>
+                        <button onClick={() => setBaseValues(prev => ({...prev, magic: prev.magic + 1}))} className="guide-base-val-btn text-cyan-500">
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="guide-calc-space">
+                  <div className="guide-calc-panel">
+                    <label className="guide-calc-label">難度倍率</label>
+                    <div className="guide-btn-row">
+                      {[1,2,3,4,5].map(d => (
+                        <button key={d} onClick={() => setDifficulty(d)} className={`guide-btn-square ${difficulty === d ? 'guide-btn-square-active-amber' : ''}`}>{d}x</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="guide-calc-panel">
+                    <label className="guide-calc-label">骰子點數</label>
+                    <div className="guide-btn-row">
+                      {[1,2,3,4,5,6].map(d => (
+                        <button key={d} onClick={() => setDiceRoll(d)} className={`guide-btn-square ${diceRoll === d ? 'guide-btn-square-active-indigo' : ''}`}>{d}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="guide-result-box">
+                  <p className="guide-result-label">預計獲得點數 (基礎 + 難度 × 骰子)</p>
+                  <p className="guide-result-value">+{autoGain}</p>
+                </div>
+
+                <div className="guide-btn-row">
+                  <button 
+                    onClick={() => {
+                      const titles = { stamina: '體力', strength: '力量', magic: '魔力' };
+                      const themes = { stamina: 'rose', strength: 'amber', magic: 'cyan' };
+                      const icons = { stamina: Heart, strength: Sword, magic: Zap };
+                      triggerConfirm(selectedStageType, (currentStats[selectedStageType] || 0) + autoGain, `增加 ${autoGain} 點${titles[selectedStageType]}`, themes[selectedStageType], icons[selectedStageType]);
+                    }} 
+                    className={`guide-op-btn guide-btn-large bg-${selectedStageType === 'stamina' ? 'rose' : selectedStageType === 'strength' ? 'amber' : 'cyan'}`}
+                  >
+                    <Sparkles size={24}/> 增加數值
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div className="guide-card" style={{ height: '100%' }}>
+                <div className="guide-section-header">
+                  <TrendingUp size={24} className="icon-emerald"/>
+                  <h3 className="guide-section-title">自訂數值微調</h3>
+                </div>
+                
+                <div className="guide-calc-panel" style={{ marginBottom: '1.5rem' }}>
+                  <label className="guide-calc-label">輸入變更額度</label>
+                  <input type="number" value={manualValue} onChange={(e) => setManualValue(e.target.value)} className="guide-input guide-manual-input" />
+                  <div className="guide-btn-row">
+                    {['1','5','10','50'].map(v => (
+                      <button key={v} onClick={()=>setManualValue(v)} className="guide-btn-square">{v}</button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="guide-adjust-list">
+                  {(['stamina', 'strength', 'magic'] as const).map((key) => {
+                    const label = key === 'stamina' ? '體力' : key === 'strength' ? '力量' : '魔力';
+                    const val = Math.abs(parseInt(manualValue||'0'));
+                    const theme = key === 'stamina' ? 'rose' : key === 'strength' ? 'amber' : 'cyan';
+                    const StatIcon = key === 'stamina' ? Heart : key === 'strength' ? Sword : Zap;
+                    
+                    return (
+                      <div key={key} className="guide-adjust-row">
+                        <div className="guide-adjust-title">
+                          <StatIcon className={`text-${theme}`} size={24}/>
+                          <span className="guide-adjust-name">{label}</span>
+                        </div>
+                        <div className="guide-adjust-actions">
+                          <button onClick={() => triggerConfirm(key, (currentStats[key] || 0) - val, `扣除 ${val} 點${label}`, 'red', StatIcon)} className="guide-op-btn guide-btn-medium bg-red-light">
+                            <Minus size={20}/> 扣除
+                          </button>
+                          <button onClick={() => triggerConfirm(key, (currentStats[key] || 0) + val, `增加 ${val} 點${label}`, 'emerald', StatIcon)} className="guide-op-btn guide-btn-medium bg-emerald">
+                            <Plus size={20}/> 增加
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 關卡通關進度管理 */}
+          <div className="guide-card">
+            <div className="guide-section-header">
+              <Flag size={24} className="icon-emerald"/>
+              <h3 className="guide-section-title">關卡通關進度管理</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map(stageNum => {
+                const stageKey = `stage${stageNum}` as keyof TribeStats;
+                const val = (currentStats[stageKey] as number) || 0;
+                return (
+                  <div key={stageNum} className="flex flex-col items-center p-4 bg-[#fafaf9] rounded-xl border border-[#e7e5e4]">
+                    <span className="font-bold text-stone-600 mb-4">第 {stageNum} 關通關數</span>
+                    <div className="flex items-center justify-between w-full px-4">
+                      <button onClick={() => triggerConfirm(stageKey, val - 1, `第 ${stageNum} 關通關數 - 1`, 'stone', Minus)} className="guide-stage-btn guide-stage-btn-minus"><Minus size={20}/></button>
+                      <span className="text-4xl font-black text-stone-800">{val}</span>
+                      <button onClick={() => triggerConfirm(stageKey, val + 1, `第 ${stageNum} 關通關數 + 1`, 'emerald', Plus)} className="guide-stage-btn guide-stage-btn-plus"><Plus size={20}/></button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="guide-card">
+            <div className="guide-section-header">
+              <Sparkles size={24} className="icon-amber"/>
+              <h3 className="guide-section-title">特殊狀態管理</h3>
+            </div>
+            <div className="guide-toggle-box">
+              <div className="guide-toggle-label">
+                  <Sparkles className={currentStats.goddessBlessing ? "icon-amber" : ""} style={{ color: currentStats.goddessBlessing ? undefined : "#a8a29e" }} size={28} />
+                  女神的祝福
+              </div>
+              <div className={`guide-toggle-switch ${currentStats.goddessBlessing ? 'active' : ''}`} onClick={toggleBlessing}>
+                <div className="guide-toggle-slider"></div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <AnimatePresence>
+          {confirmAction && (() => {
+            const { title, colorTheme, icon: ActionIcon } = confirmAction.payload;
+            const colors = themeColors[colorTheme] || themeColors.stone;
+            return (
+              <div className="guide-modal-overlay">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="guide-modal-content">
+                  <div className="guide-modal-icon" style={{ backgroundColor: colors.lightBg, color: colors.text }}><ActionIcon size={44} /></div>
+                  <h3 className="guide-modal-title">執行確認</h3>
+                  <p className="guide-modal-desc-text">{title}</p>
+                  <div className="guide-modal-actions">
+                    <button onClick={() => setConfirmAction(null)} className="guide-op-btn guide-btn-medium bg-stone-100 text-stone-600">取消</button>
+                    <button onClick={executeAction} className="guide-op-btn guide-btn-medium" style={{ backgroundColor: colors.bg }}>確認執行</button>
+                  </div>
+                </motion.div>
+              </div>
+            );
+          })()}
+        </AnimatePresence>
+      </div>
+    </main>
+  );
+}
