@@ -17,10 +17,12 @@ export interface AllTribesData {
   [key: string]: TribeStats; 
 }
 
-// 新增：關主資料型別
+// 關主資料型別
 export interface StageMaster {
-  name: string;     // 暱稱
-  stamina: number;  // 體力
-  strength: number; // 力量
-  magic: number;    // 魔力
+  name: string;         // 關主暱稱
+  stageName?: string;   // 關卡名稱
+  description?: string; // 關主/Boss 簡介
+  stamina: number;      // 體力
+  strength: number;     // 力量
+  magic: number;        // 魔力
 }

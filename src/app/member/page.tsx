@@ -118,17 +118,34 @@ export default function MemberPage() {
               ? (tStats.stage1 || 0) + (tStats.stage2 || 0) + (tStats.stage3 || 0) + (tStats.stage4 || 0) + (tStats.stage5 || 0) + (tStats.stage6 || 0)
               : 0;
 
+            const displayName = viewMode === 'tribes'
+              ? `第 ${groupNames[index]} 小組`
+              : (stats as StageMaster).name || `第 ${index + 1} 關關主`;
+            const masterStats = stats as StageMaster;
+
             return (
               <div key={key} className={`wood-plank ${viewMode === 'tribes' && tStats.goddessBlessing ? 'goddess-blessing' : ''}`}>
                 <div className="wood-plank-stats">
                   <div className="member-group-name">
                     <span className="member-group-badge">{index + 1}</span>
-                    {viewMode === 'tribes' ? `第 ${groupNames[index]} 小組` : (stats as StageMaster).name || `第 ${index + 1} 關關主`}
+                    <div className="flex flex-col">
+                      {viewMode === 'masters' && masterStats.stageName && (
+                        <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none mb-0.5">{masterStats.stageName}</span>
+                      )}
+                      <span>{displayName}</span>
+                    </div>
                   </div>
                   <div className="plank-stat-cell"><AnimatedStat value={stats.stamina || 0} /></div>
                   <div className="plank-stat-cell"><AnimatedStat value={stats.strength || 0} /></div>
                   <div className="plank-stat-cell"><AnimatedStat value={stats.magic || 0} /></div>
                 </div>
+
+                {/* 關主簡介（僅關主模式） */}
+                {viewMode === 'masters' && masterStats.description && (
+                  <div className="w-full mt-2 px-3 pb-2 relative z-10">
+                    <p className="text-xs text-[#7d5a4f] leading-relaxed italic opacity-80">{masterStats.description}</p>
+                  </div>
+                )}
 
                 {/* 僅在部落模式下顯示通關進度 */}
                 {viewMode === 'tribes' && (
