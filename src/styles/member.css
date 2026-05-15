@@ -1,7 +1,7 @@
 /* src/styles/member.css */
 
 /* =========================================
-   古代布告欄樣式 (Ancient Wood Board) - 靈魂級優化
+   古代布告欄樣式 (Ancient Wood Board)
    ========================================= */
 
 :root {
@@ -9,7 +9,6 @@
   --wood-grain-dark: #a1887f; 
   --wood-grain-light: #e0d1c1; 
   --wood-frame-dark: #4e342e;  
-  
   --nail-head: #37474f;       
   --burnt-text: #1a1a1a;      
   --carved-highlight: rgba(255, 255, 255, 0.3); 
@@ -22,7 +21,6 @@
   overflow-x: hidden; 
   background-repeat: repeat;
   background-attachment: scroll; 
-  
   background-image: 
     radial-gradient(#e0d7c3 1px, transparent 1px),
     linear-gradient(135deg, #eee6d3 25%, transparent 25%),
@@ -106,11 +104,9 @@
       rgba(121, 85, 72, 0.1) 20%,
       transparent 40%
     );
-  
   border: 1px solid #c2a188;
   border-bottom: 6px solid #a6846c; 
   border-right: 3px solid #b3917a; 
-  
   padding: 2.5rem 2rem;
   margin-bottom: 1.8rem; 
   border-radius: 8px;
@@ -151,15 +147,30 @@
 .wood-plank::before { top: 12px; left: 15px; }
 .wood-plank::after { top: 12px; right: 15px; }
 
+/* 每個數值欄：上方顯示屬性名，下方顯示大數字 */
 .plank-stat-cell {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 0.15rem;
   position: relative; 
 }
 
+/* 屬性名標籤（體力/力量/魔力） - 桌面與手機版均顯示 */
+.member-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+  text-shadow: none;
+}
+
 .huge-stat {
-  font-size: 6.5rem; 
+  font-size: 6rem; 
   line-height: 1;
   font-weight: 900;
   color: var(--burnt-text);

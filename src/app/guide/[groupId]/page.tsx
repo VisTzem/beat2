@@ -315,35 +315,6 @@ export default function GuideDashboardPage() {
             </div>
           </div>
 
-          {/* 關卡通關進度管理 */}
-          <div className="guide-card">
-            <div className="guide-section-header">
-              <Flag size={24} className="icon-emerald"/>
-              <h3 className="guide-section-title">關卡通關進度管理</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map(stageNum => {
-                const stageKey = `stage${stageNum}` as keyof TribeStats;
-                const val = (currentStats[stageKey] as number) || 0;
-                const master = mastersData[`master${stageNum}`];
-                return (
-                  <div key={stageNum} className="flex flex-col items-center p-4 bg-[#fafaf9] rounded-xl border border-[#e7e5e4]">
-                    <span className="font-black text-stone-800 text-sm mb-0.5">第 {stageNum} 關</span>
-                    {master?.stageName && (
-                      <span className="text-xs text-amber-600 font-bold mb-3 truncate w-full text-center">{master.stageName}</span>
-                    )}
-                    {!master?.stageName && <span className="mb-3" />}
-                    <div className="flex items-center justify-between w-full px-4">
-                      <button onClick={() => triggerConfirm(stageKey, val - 1, `第 ${stageNum} 關通關數 - 1`, 'stone', Minus)} className="guide-stage-btn guide-stage-btn-minus"><Minus size={20}/></button>
-                      <span className="text-4xl font-black text-stone-800">{val}</span>
-                      <button onClick={() => triggerConfirm(stageKey, val + 1, `第 ${stageNum} 關通關數 + 1`, 'emerald', Plus)} className="guide-stage-btn guide-stage-btn-plus"><Plus size={20}/></button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
           {/* 女神祝福 */}
           <div className="guide-card">
             <div className="guide-section-header">

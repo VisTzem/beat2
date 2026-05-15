@@ -63,8 +63,8 @@ export default function MemberPage() {
     };
   }, []);
 
-  const groupKeys = Array.from({ length: 6 }, (_, i) => `group${i + 1}`);
-  const masterKeys = Array.from({ length: 6 }, (_, i) => `master${i + 1}`);
+  const groupKeys = ["group1", "group2", "group3", "group4", "group5", "group6"];
+  const masterKeys = ["master1", "master2", "master3", "master4", "master5", "master6"];
   const groupNames = ["一", "二", "三", "四", "五", "六"];
 
   return (
@@ -135,9 +135,18 @@ export default function MemberPage() {
                       <span>{displayName}</span>
                     </div>
                   </div>
-                  <div className="plank-stat-cell"><AnimatedStat value={stats.stamina || 0} /></div>
-                  <div className="plank-stat-cell"><AnimatedStat value={stats.strength || 0} /></div>
-                  <div className="plank-stat-cell"><AnimatedStat value={stats.magic || 0} /></div>
+                  <div className="plank-stat-cell">
+                    <div className="member-stat-label text-rose-900/40"><Heart size={14}/> 體力</div>
+                    <AnimatedStat value={stats.stamina || 0} />
+                  </div>
+                  <div className="plank-stat-cell">
+                    <div className="member-stat-label text-amber-900/40"><Sword size={14}/> 力量</div>
+                    <AnimatedStat value={stats.strength || 0} />
+                  </div>
+                  <div className="plank-stat-cell">
+                    <div className="member-stat-label text-cyan-900/40"><Zap size={14}/> 魔力</div>
+                    <AnimatedStat value={stats.magic || 0} />
+                  </div>
                 </div>
 
                 {/* 關主簡介（僅關主模式） */}

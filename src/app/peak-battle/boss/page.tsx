@@ -45,6 +45,13 @@ export default function BossPage() {
         if (data.teams) {
           setTeamsState(data.teams);
         }
+      } else {
+        // 初始化 peakBattle 資料
+        update(ref(db, `peakBattle`), {
+          round: 1,
+          boss: { hp: 5000, maxHp: 5000, strength: 100, magic: 100, action: "", status: "preparing" },
+          teams: groupKeys.reduce((acc, key) => ({ ...acc, [key]: { action: "", status: "preparing" } }), {})
+        });
       }
     });
 
