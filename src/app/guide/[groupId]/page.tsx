@@ -129,31 +129,7 @@ export default function GuideDashboardPage() {
             </button>
           </div>
 
-          {/* 關卡資訊卡：關卡名稱 + 關主簡介 */}
-          {currentMaster && (currentMaster.stageName || currentMaster.description || currentMaster.name) && (
-            <div className="guide-card w-full mt-4 bg-gradient-to-br from-amber-50 to-stone-50 border border-amber-200">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-md">
-                  <Sword size={24} className="text-stone-900" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  {currentMaster.stageName && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <Tag size={14} className="text-amber-600 shrink-0" />
-                      <span className="text-xl font-black text-amber-700 truncate">{currentMaster.stageName}</span>
-                    </div>
-                  )}
-                  <p className="text-base font-black text-stone-800 mb-1">{currentMaster.name || `第 ${groupIndex} 關關主`}</p>
-                  {currentMaster.description && (
-                    <div className="flex items-start gap-1.5 mt-2">
-                      <BookOpen size={14} className="text-stone-400 mt-0.5 shrink-0" />
-                      <p className="text-sm text-stone-600 leading-relaxed">{currentMaster.description}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* 當前屬性 + 快捷事件 + 微調 */}
           <div className="guide-dashboard-grid">
