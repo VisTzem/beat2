@@ -17,13 +17,13 @@ export default function BattleLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) return alert("請輸入密碼");
-    
+
     setIsLoading(true);
     try {
-      const hiddenEmail = "admin@beat2.com"; 
+      const hiddenEmail = "vis.tzem.always@gmail.com";
       const userCredential = await signInWithEmailAndPassword(auth, hiddenEmail, password);
       const token = await userCredential.user.getIdToken();
-      
+
       document.cookie = `tribe_session=${token}; path=/; max-age=3600; SameSite=Strict`;
       router.push(`/battle/panel`);
     } catch (error: any) {
@@ -52,17 +52,17 @@ export default function BattleLoginPage() {
           <form onSubmit={handleLogin} className="guide-login-form">
             <div className="guide-login-group">
               <label className="guide-label"><Lock size={18} /> 對戰房密碼</label>
-              <input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="輸入管理密碼" 
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="輸入管理密碼"
                 className="guide-input"
                 required
               />
             </div>
             <button type="submit" disabled={isLoading} className="guide-op-btn guide-btn-login bg-amber-500 text-stone-900 hover:bg-amber-400">
-              {isLoading ? "驗證中..." : <><Swords size={20}/> 進入對戰面板</>}
+              {isLoading ? "驗證中..." : <><Swords size={20} /> 進入對戰面板</>}
             </button>
           </form>
         </motion.div>
