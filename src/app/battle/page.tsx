@@ -122,7 +122,7 @@ export default function BattleLoginPage() {
                       const numA = parseInt(a.replace("master", "")) || 0;
                       const numB = parseInt(b.replace("master", "")) || 0;
                       return numA - numB;
-                    }).map((key) => {
+                    }).slice(0, 4).map((key) => {
                       const idx = parseInt(key.replace("master", "")) - 1;
                       const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
                       const name = mastersData[key]?.name || beastNames[idx] || `神獸 ${idx + 1}`;

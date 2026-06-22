@@ -75,7 +75,7 @@ function LeaderContent() {
         const numA = parseInt(a.replace("master", "")) || 0;
         const numB = parseInt(b.replace("master", "")) || 0;
         return numA - numB;
-      });
+      }).slice(0, 4);
       if (!keys.includes(selectedMaster)) {
         setSelectedMaster(keys[0]);
       }
