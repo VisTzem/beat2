@@ -92,7 +92,7 @@ export default function MemberPage() {
               className="bg-stone-800 text-amber-400 px-2 py-1 text-sm rounded-lg font-bold border-none outline-none cursor-pointer"
             >
                <option value="tribes">各組小組員</option>
-               <option value="masters">四個神獸</option>
+               <option value="masters">神獸</option>
             </select>
           </div>
         </h1>

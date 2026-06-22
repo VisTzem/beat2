@@ -22,7 +22,7 @@ function LeaderContent() {
   const [selectedAction, setSelectedAction] = useState("");
 
   const groupNames: Record<string, string> = { group1: "一", group2: "二", group3: "三", group4: "四", group5: "五", group6: "六" };
-  const [bossName, setBossName] = useState("原始馬終極大boss");
+  const [bossName, setBossName] = useState("黑化原始馬——木馬");
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -77,13 +77,13 @@ function LeaderContent() {
           update(ref(db, `peakBattle/teams/${team}`), { action: "", status: "preparing" }).catch(e => console.error("Firebase update error:", e));
         }
         if (data.boss) {
-          setBossName(data.boss.name || "原始馬終極大boss");
+          setBossName(data.boss.name || "黑化原始馬——木馬");
         }
       } else {
         // Initialize peakBattle if completely missing
         update(ref(db, `peakBattle`), {
           round: 1,
-          boss: { name: "原始馬終極大boss", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" }
+          boss: { name: "黑化原始馬——木馬", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" }
         }).catch(e => console.error("Firebase update error:", e));
       }
     });
