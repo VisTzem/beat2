@@ -54,7 +54,7 @@ export default function PeakBattleLoginPage() {
           <div className="guide-header-icon bg-amber-500 text-stone-900 shadow-[0_0_30px_rgba(245,158,11,0.5)]">
             <Swords size={36} />
           </div>
-          <h1 className="guide-title">頂峰之爭登入</h1>
+          <h1 className="guide-title">原始馬? 登入</h1>
         </header>
 
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="guide-login-box">
@@ -72,7 +72,7 @@ export default function PeakBattleLoginPage() {
               <button
                 type="button"
                 onClick={() => setRole("boss")}
-                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 font-black transition-all ${role === 'boss' ? 'bg-amber-500 text-stone-900 shadow-xl shadow-amber-500/30 scale-105' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
+                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 font-black transition-all ${role === 'boss' ? 'bg-amber-50 text-stone-900 shadow-xl shadow-amber-500/30 scale-105' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
               >
                 <ShieldAlert size={28} />
                 <span>我是Boss</span>

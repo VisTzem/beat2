@@ -4,13 +4,16 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Swords, Lock, Home } from "lucide-react";
+import { Swords, ShieldCheck, Users, Home, Lock } from "lucide-react";
 import Link from "next/link";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function BattleLoginPage() {
   const router = useRouter();
+  const [role, setRole] = useState("master");
+  const [selectedGroup, setSelectedGroup] = useState("group1");
+  const [selectedMaster, setSelectedMaster] = useState("master1");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,7 +28,12 @@ export default function BattleLoginPage() {
       const token = await userCredential.user.getIdToken();
 
       document.cookie = `tribe_session=${token}; path=/; max-age=3600; SameSite=Strict`;
-      router.push(`/battle/panel`);
+
+      if (role === "master") {
+        router.push(`/battle/master?id=${selectedMaster}`);
+      } else {
+        router.push(`/battle/leader?team=${selectedGroup}`);
+      }
     } catch (error: any) {
       console.error("Login Error:", error);
       alert("密碼錯誤，請重新輸入！");
@@ -33,6 +41,9 @@ export default function BattleLoginPage() {
       setIsLoading(false);
     }
   };
+
+  const groupNames = ["一", "二", "三", "四", "五", "六"];
+  const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
 
   return (
     <main className="guide-main">
@@ -50,6 +61,48 @@ export default function BattleLoginPage() {
 
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="guide-login-box">
           <form onSubmit={handleLogin} className="guide-login-form">
+            
+            <div className="flex gap-4 mb-6">
+              <button
+                type="button"
+                onClick={() => setRole("leader")}
+                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 font-black transition-all ${role === 'leader' ? 'bg-stone-900 text-amber-400 shadow-xl scale-105' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
+              >
+                <Users size={28} />
+                <span>我是隊輔</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("master")}
+                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 font-black transition-all ${role === 'master' ? 'bg-amber-500 text-stone-900 shadow-xl shadow-amber-500/30 scale-105' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
+              >
+                <ShieldCheck size={28} />
+                <span>我是關主</span>
+              </button>
+            </div>
+
+            {role === "leader" && (
+              <div className="guide-login-group">
+                <label className="guide-label"><Users size={18} className="icon-amber" /> 選擇您的隊伍</label>
+                <select value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)} className="guide-select">
+                  {Array.from({ length: 6 }, (_, i) => `group${i + 1}`).map((key, i) => (
+                    <option key={key} value={key}>第 {groupNames[i]} 小組</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {role === "master" && (
+              <div className="guide-login-group">
+                <label className="guide-label"><ShieldCheck size={18} className="icon-amber" /> 選擇您的神廟</label>
+                <select value={selectedMaster} onChange={(e) => setSelectedMaster(e.target.value)} className="guide-select">
+                  {Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
+                    <option key={key} value={key}>{templeNames[i]}關主</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="guide-login-group">
               <label className="guide-label"><Lock size={18} /> 對戰房密碼</label>
               <input

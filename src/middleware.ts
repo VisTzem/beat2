@@ -9,6 +9,8 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/guide/group') || 
     request.nextUrl.pathname.startsWith('/guide/masters') ||
     request.nextUrl.pathname.startsWith('/battle/panel') ||
+    request.nextUrl.pathname.startsWith('/battle/master') ||
+    request.nextUrl.pathname.startsWith('/battle/leader') ||
     request.nextUrl.pathname.startsWith('/peak-battle/leader') ||
     request.nextUrl.pathname.startsWith('/peak-battle/boss')
   ) {

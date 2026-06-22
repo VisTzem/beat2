@@ -108,10 +108,17 @@ export default function MemberPage() {
 
           {(viewMode === 'tribes' ? groupKeys : masterKeys).map((key, index) => {
             const stats = viewMode === 'tribes' 
-              ? (tribesData[key] || { stamina: 0, strength: 0, magic: 0, goddessBlessing: false })
+              ? (tribesData[key] || { stamina: 0, strength: 0, magic: 0, goddessBlessing: 0 })
               : (mastersData[key] || { name: `第 ${index + 1} 關關主`, stamina: 0, strength: 0, magic: 0 });
             
             const tStats = stats as TribeStats;
+
+            // 計算女神祝福累積層數
+            const blessingCount = viewMode === 'tribes'
+              ? (typeof tStats.goddessBlessing === 'number'
+                  ? tStats.goddessBlessing
+                  : (tStats.goddessBlessing ? 1 : 0))
+              : 0;
 
             // 計算小組才有的總通關數
             const totalStages = viewMode === 'tribes' 
@@ -124,15 +131,48 @@ export default function MemberPage() {
             const masterStats = stats as StageMaster;
 
             return (
-              <div key={key} className={`wood-plank ${viewMode === 'tribes' && tStats.goddessBlessing ? 'goddess-blessing' : ''}`}>
+              <div key={key} className={`wood-plank ${viewMode === 'tribes' && blessingCount > 0 ? 'goddess-blessing' : ''}`}>
+                
+                {/* 聖光粒子效果 */}
+                {viewMode === 'tribes' && blessingCount > 0 && (
+                  <div className="holy-particles-container">
+                    {Array.from({ length: Math.min(15, blessingCount * 3) }).map((_, pi) => {
+                      const vx = (Math.random() - 0.5) * 120;
+                      const vy = -60 - Math.random() * 120;
+                      const delay = Math.random() * 2.5;
+                      const duration = 2 + Math.random() * 2.5;
+                      return (
+                        <div
+                          key={pi}
+                          className="holy-particle"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            bottom: `${Math.random() * 20}%`,
+                            animationDelay: `${delay}s`,
+                            animationDuration: `${duration}s`,
+                            // @ts-ignore
+                            '--p-vx': `${vx}px`,
+                            '--p-vy': `${vy}px`,
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="wood-plank-stats">
                   <div className="member-group-name">
                     <span className="member-group-badge">{index + 1}</span>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col items-start">
                       {viewMode === 'masters' && masterStats.stageName && (
                         <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none mb-0.5">{masterStats.stageName}</span>
                       )}
                       <span>{displayName}</span>
+                      {viewMode === 'tribes' && blessingCount > 0 && (
+                        <span className="text-[10px] font-black bg-amber-500 text-stone-900 px-2 py-0.5 rounded-full mt-1.5 shadow-sm">
+                          女神的祝福 x{blessingCount}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="plank-stat-cell">
@@ -165,12 +205,17 @@ export default function MemberPage() {
                         <div className="flex items-center gap-1 text-[#4e342e] font-black text-xs mb-1"><Trophy size={14}/> 總通關</div>
                         <span className="text-2xl font-black text-[#1a1a1a]">{totalStages}</span>
                       </div>
-                      {[1, 2, 3, 4, 5, 6].map(stageNum => (
-                        <div key={stageNum} className="flex flex-col items-center justify-center p-1 rounded-lg bg-[#e0d1c1]/30 border border-[#c2a188]/30">
-                          <span className="text-[10px] font-bold text-[#795548]">第 {stageNum} 關</span>
-                          <span className="text-xl font-black text-[#3e2723]">{tStats[`stage${stageNum}`] || 0}</span>
-                        </div>
-                      ))}
+                      {[1, 2, 3, 4, 5, 6].map(stageNum => {
+                        const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
+                        return (
+                          <div key={stageNum} className="flex flex-col items-center justify-center p-1 rounded-lg bg-[#e0d1c1]/30 border border-[#c2a188]/30">
+                            <span className="text-[10px] font-bold text-[#795548] text-center w-full truncate" title={templeNames[stageNum - 1]}>
+                              {templeNames[stageNum - 1]}
+                            </span>
+                            <span className="text-xl font-black text-[#3e2723]">{tStats[`stage${stageNum}`] || 0}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 )}

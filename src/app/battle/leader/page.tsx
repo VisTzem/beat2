@@ -1,4 +1,4 @@
-// src/app/peak-battle/leader/page.tsx
+// src/app/battle/leader/page.tsx
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ref, onValue, update } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
-import { Heart, Sword, Zap, Shield, Home, CheckCircle } from "lucide-react";
+import { Heart, Sword, Zap, Shield, Home, CheckCircle, Swords } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -17,17 +17,18 @@ function LeaderContent() {
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [stats, setStats] = useState({ stamina: 0, strength: 0, magic: 0 });
+  const [selectedMaster, setSelectedMaster] = useState("master1");
   const [round, setRound] = useState(1);
   const [battleState, setBattleState] = useState({ action: "", status: "preparing" });
   const [selectedAction, setSelectedAction] = useState("");
 
   const groupNames: Record<string, string> = { group1: "一", group2: "二", group3: "三", group4: "四", group5: "五", group6: "六" };
-  const [bossName, setBossName] = useState("程式馬");
+  const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        router.push('/peak-battle');
+        router.push('/battle');
       } else {
         setIsCheckingAuth(false);
       }
@@ -35,14 +36,10 @@ function LeaderContent() {
     return () => unsubscribeAuth();
   }, [router]);
 
+  // 監聽自己的三圍
   useEffect(() => {
-    if (isCheckingAuth) return;
-    if (!team || !groupNames[team]) {
-      router.push("/peak-battle");
-      return;
-    }
+    if (isCheckingAuth || !team || !groupNames[team]) return;
 
-    // 監聽自己的三圍
     const tribeRef = ref(db, `tribes/${team}`);
     const unsubscribeTribe = onValue(tribeRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -55,67 +52,72 @@ function LeaderContent() {
       }
     });
 
-    // 監聽戰鬥狀態
-    const peakBattleRef = ref(db, `peakBattle`);
-    const unsubscribeBattle = onValue(peakBattleRef, (snapshot) => {
+    return () => unsubscribeTribe();
+  }, [team, isCheckingAuth]);
+
+  // 監聽選定關主的戰鬥狀態
+  useEffect(() => {
+    if (isCheckingAuth || !team || !groupNames[team] || !selectedMaster) return;
+
+    const battleRef = ref(db, `normalBattles/${selectedMaster}`);
+    const unsubscribeBattle = onValue(battleRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         setRound(data.round || 1);
         
-        if (data.teams && data.teams[team]) {
-          const tState = data.teams[team];
+        // 檢查該關主當前面對的組別是否是自己
+        if (data.activeTribe === team) {
+          const tState = data.tribe || { action: "", status: "preparing" };
           setBattleState({
             action: tState.action || "",
             status: tState.status || "preparing"
           });
-          // 如果回合重置（狀態變成 preparing），我們也把本地選擇清空
           if (tState.status === "preparing") {
             setSelectedAction("");
           }
         } else {
-          // Initialize in Firebase if not exists
-          update(ref(db, `peakBattle/teams/${team}`), { action: "", status: "preparing" }).catch(e => console.error("Firebase update error:", e));
-        }
-        if (data.boss) {
-          setBossName(data.boss.name || "程式馬");
+          setBattleState({ action: "", status: "not_active" });
         }
       } else {
-        // Initialize peakBattle if completely missing
-        update(ref(db, `peakBattle`), {
+        // 初始化關主的對戰狀態
+        update(ref(db, `normalBattles/${selectedMaster}`), {
           round: 1,
-          boss: { name: "程式馬", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" }
+          activeTribe: team,
+          master: { action: "", status: "preparing" },
+          tribe: { action: "", status: "preparing" }
         }).catch(e => console.error("Firebase update error:", e));
       }
     });
 
-    return () => {
-      unsubscribeTribe();
-      unsubscribeBattle();
-    };
-  }, [team, router, isCheckingAuth]);
+    return () => unsubscribeBattle();
+  }, [selectedMaster, team, isCheckingAuth]);
 
   // 處理死亡隊伍自動準備的邏輯
   const isDead = stats.stamina <= 0;
 
   useEffect(() => {
-    if (isCheckingAuth || !team || !groupNames[team]) return;
+    if (isCheckingAuth || !team || !groupNames[team] || !selectedMaster) return;
     if (isDead && battleState.status === "preparing") {
-      update(ref(db, `peakBattle/teams/${team}`), {
+      // 陣亡隊伍無法行動，自動在對戰房中標記準備完成
+      update(ref(db, `normalBattles/${selectedMaster}/tribe`), {
         action: "dead",
         status: "ready"
       }).catch(e => console.error("Auto ready dead team error:", e));
     }
-  }, [isDead, battleState.status, team, isCheckingAuth]);
+  }, [isDead, battleState.status, selectedMaster, team, isCheckingAuth]);
 
   const handleConfirmReady = async () => {
+    if (isDead) return;
     if (!selectedAction) return alert("請先選擇一種攻擊方式！");
-    await update(ref(db, `peakBattle/teams/${team}`), {
-      action: selectedAction,
-      status: "ready"
+    
+    // 更新對戰房的狀態
+    await update(ref(db, `normalBattles/${selectedMaster}`), {
+      activeTribe: team, // 確保 activeTribe 鎖定為自己
+      "tribe/action": selectedAction,
+      "tribe/status": "ready"
     });
   };
 
-  // 🔒 驗證守門：Auth 確認前完全不渲染頁面，防止直接用 URL 繞過登入
   if (isCheckingAuth) return (
     <div className="min-h-screen bg-[#f5f0e6] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-stone-500">
@@ -129,15 +131,28 @@ function LeaderContent() {
 
   return (
     <main className="min-h-screen bg-[#f5f0e6] flex flex-col items-center p-4">
-      <Link href="/peak-battle" className="absolute top-4 left-4 flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full shadow-sm text-stone-600 hover:bg-white transition-colors font-bold">
+      <Link href="/battle" className="absolute top-4 left-4 flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full shadow-sm text-stone-600 hover:bg-white transition-colors font-bold">
         <Home size={18} /> 返回選角
       </Link>
 
       <div className="w-full max-w-md mt-16 flex flex-col gap-6">
         <div className="text-center">
           <h1 className="text-3xl font-black text-stone-800 mb-2">第 {groupNames[team]} 小組</h1>
-          <div className="inline-block bg-amber-500 text-stone-900 font-black px-6 py-2 rounded-full text-lg shadow-md">
-            第 {round} 回合
+          
+          <div className="flex items-center gap-2 justify-center bg-white/80 p-3 rounded-2xl border border-stone-200 mt-3">
+            <span className="text-sm font-bold text-stone-600">正在挑戰：</span>
+            <select
+              value={selectedMaster}
+              onChange={(e) => setSelectedMaster(e.target.value)}
+              className="bg-stone-800 text-amber-400 px-3 py-1 text-sm rounded-lg font-black border-none outline-none cursor-pointer"
+            >
+              {Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
+                <option key={key} value={key}>{templeNames[i]}</option>
+              ))}
+            </select>
+            <div className="bg-amber-500 text-stone-900 font-black px-3 py-1 rounded-lg text-xs">
+              第 {round} 回合
+            </div>
           </div>
         </div>
 
@@ -170,7 +185,7 @@ function LeaderContent() {
               <span className="inline-block bg-rose-100 text-rose-600 px-4 py-2 rounded-2xl font-black text-lg border border-rose-200">
                 ⚠️ 隊伍已陣亡，無法行動。
               </span>
-              <p className="text-xs text-stone-400 mt-2">請等待 Boss 使用女神像復活</p>
+              <p className="text-xs text-stone-400 mt-2">請向關主或隊輔尋求復活/治療</p>
             </div>
           ) : (
             <>
@@ -224,7 +239,7 @@ function LeaderContent() {
 
               {battleState.status === "ready" && (
                 <div className="w-full mt-6 py-4 rounded-2xl bg-emerald-50 text-emerald-600 font-black text-center border border-emerald-200">
-                  等待 {bossName} 發動攻擊...
+                  等待關主進行回合結算...
                 </div>
               )}
             </>

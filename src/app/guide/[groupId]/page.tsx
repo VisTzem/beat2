@@ -32,8 +32,16 @@ export default function GuideDashboardPage() {
   const [manualValue, setManualValue] = useState<string>("5");
   const [confirmAction, setConfirmAction] = useState<any | null>(null);
 
-  // 根據女神祝福狀態決定基礎值（固定，不可手動更改）
-  const baseValues = currentStats.goddessBlessing ? BASE_BLESSED : BASE_NORMAL;
+  // 根據女神祝福層數決定基礎值（固定，不可手動更改）
+  const blessingCount = typeof currentStats.goddessBlessing === 'number'
+    ? currentStats.goddessBlessing
+    : (currentStats.goddessBlessing ? 1 : 0);
+
+  const baseValues = {
+    stamina: BASE_NORMAL.stamina + blessingCount * 3,
+    strength: BASE_NORMAL.strength + blessingCount * 3,
+    magic: BASE_NORMAL.magic + blessingCount * 3,
+  };
 
   useEffect(() => {
     const allowedGroups = ["group1", "group2", "group3", "group4", "group5", "group6"];
@@ -140,9 +148,9 @@ export default function GuideDashboardPage() {
                 <div className="guide-section-header">
                   <Sparkles size={24} className="icon-amber"/>
                   <h3 className="guide-section-title">當前屬性數值</h3>
-                  {currentStats.goddessBlessing && (
+                  {blessingCount > 0 && (
                     <span className="ml-auto text-xs font-black bg-amber-100 text-amber-600 px-2 py-1 rounded-full flex items-center gap-1">
-                      <Sparkles size={12}/> 女神祝福中
+                      <Sparkles size={12}/> 女神祝福 x{blessingCount}
                     </span>
                   )}
                 </div>
@@ -185,7 +193,7 @@ export default function GuideDashboardPage() {
                 <div className="guide-base-val-panel">
                   <label className="guide-calc-label">
                     關卡預設基礎值
-                    {currentStats.goddessBlessing && <span className="ml-2 text-amber-500 text-xs font-black">（女神祝福加成中）</span>}
+                    {blessingCount > 0 && <span className="ml-2 text-amber-500 text-xs font-black">（女神祝福 x{blessingCount} 加成中）</span>}
                   </label>
                   <div className="guide-base-val-grid">
                     {(['stamina', 'strength', 'magic'] as const).map(key => {
@@ -297,17 +305,36 @@ export default function GuideDashboardPage() {
               <Sparkles size={24} className="icon-amber"/>
               <h3 className="guide-section-title">特殊狀態管理</h3>
             </div>
-            <div className="guide-toggle-box">
-              <div className="guide-toggle-label">
-                <Sparkles className={currentStats.goddessBlessing ? "icon-amber" : ""} style={{ color: currentStats.goddessBlessing ? undefined : "#a8a29e" }} size={28} />
-                女神的祝福
-                {currentStats.goddessBlessing
-                  ? <span className="text-xs font-black text-amber-600 ml-2">（基礎值 體力{BASE_BLESSED.stamina} / 力量{BASE_BLESSED.strength} / 魔力{BASE_BLESSED.magic}）</span>
-                  : <span className="text-xs text-stone-400 ml-2">（基礎值 體力{BASE_NORMAL.stamina} / 力量{BASE_NORMAL.strength} / 魔力{BASE_NORMAL.magic}）</span>
-                }
+            <div className="flex justify-between items-center bg-stone-50 border border-stone-200 p-4 rounded-2xl">
+              <div className="flex flex-col gap-1">
+                <span className="font-bold flex items-center gap-1 text-stone-800">
+                  <Sparkles className={blessingCount > 0 ? "text-amber-500" : "text-stone-400"} size={20} />
+                  女神的祝福 (累積 {blessingCount} 層)
+                </span>
+                <span className="text-xs text-stone-500">
+                  當前基礎值：體力 {baseValues.stamina} / 力量 {baseValues.strength} / 魔力 {baseValues.magic}
+                </span>
               </div>
-              <div className={`guide-toggle-switch ${currentStats.goddessBlessing ? 'active' : ''}`} onClick={toggleBlessing}>
-                <div className="guide-toggle-slider"></div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={async () => {
+                    const next = Math.max(0, blessingCount - 1);
+                    await update(ref(db, `tribes/${groupId}`), { goddessBlessing: next });
+                  }}
+                  className="bg-white border border-stone-300 hover:bg-stone-50 p-2 rounded-lg text-stone-600 shadow-sm"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="font-black text-xl w-8 text-center text-stone-800">{blessingCount}</span>
+                <button
+                  onClick={async () => {
+                    const next = blessingCount + 1;
+                    await update(ref(db, `tribes/${groupId}`), { goddessBlessing: next });
+                  }}
+                  className="bg-amber-500 text-stone-900 hover:bg-amber-400 p-2 rounded-lg font-black shadow-sm"
+                >
+                  <Plus size={16} />
+                </button>
               </div>
             </div>
           </div>
