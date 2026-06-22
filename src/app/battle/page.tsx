@@ -115,7 +115,7 @@ export default function BattleLoginPage() {
 
             {role === "master" && (
               <div className="guide-login-group">
-                <label className="guide-label"><ShieldCheck size={18} className="icon-amber" /> 選擇您的神廟</label>
+                <label className="guide-label"><ShieldCheck size={18} className="icon-amber" /> 選擇您的神獸</label>
                 <select value={selectedMaster} onChange={(e) => setSelectedMaster(e.target.value)} className="guide-select">
                   {Object.keys(mastersData).length > 0 ? (
                     Object.keys(mastersData).sort((a, b) => {
@@ -124,14 +124,15 @@ export default function BattleLoginPage() {
                       return numA - numB;
                     }).map((key) => {
                       const idx = parseInt(key.replace("master", "")) - 1;
-                      const name = mastersData[key]?.stageName || templeNames[idx] || `${idx + 1}關主`;
+                      const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
+                      const name = mastersData[key]?.name || beastNames[idx] || `神獸 ${idx + 1}`;
                       return (
-                        <option key={key} value={key}>{name}關主</option>
+                        <option key={key} value={key}>{name}</option>
                       );
                     })
                   ) : (
-                    Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
-                      <option key={key} value={key}>{templeNames[i]}關主</option>
+                    ["日月神獸", "炎神獸", "海神獸", "雷神獸"].map((name, i) => (
+                      <option key={`master${i + 1}`} value={`master${i + 1}`}>{name}</option>
                     ))
                   )}
                 </select>

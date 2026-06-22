@@ -167,9 +167,6 @@ export default function MemberPage() {
                   <div className="member-group-name">
                     <span className="member-group-badge">{viewMode === 'tribes' ? (index + 1) : masterNum}</span>
                     <div className="flex flex-col items-start">
-                      {viewMode === 'masters' && masterStats.stageName && (
-                        <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none mb-0.5">{masterStats.stageName}</span>
-                      )}
                       <span>{displayName}</span>
                       {viewMode === 'tribes' && blessingCount > 0 && (
                         <span className="text-[10px] font-black bg-amber-500 text-stone-900 px-2 py-0.5 rounded-full mt-1.5 shadow-sm">
@@ -192,12 +189,7 @@ export default function MemberPage() {
                   </div>
                 </div>
 
-                {/* 關主簡介（僅關主模式） */}
-                {viewMode === 'masters' && masterStats.description && (
-                  <div className="w-full mt-2 px-3 pb-2 relative z-10">
-                    <p className="text-xs text-[#7d5a4f] leading-relaxed italic opacity-80">{masterStats.description}</p>
-                  </div>
-                )}
+
 
                 {/* 僅在部落模式下顯示通關進度 */}
                 {viewMode === 'tribes' && (

@@ -80,14 +80,12 @@ function MasterContent() {
           magic: data.magic || 0,
           name: data.name || defaultMasterName
         });
-      } else {
         // 初始化 masters 資料
         update(ref(db, `masters/${masterId}`), {
           name: defaultMasterName,
           stamina: 100,
           strength: 20,
-          magic: 20,
-          stageName: defaultMasterName
+          magic: 20
         });
       }
     });

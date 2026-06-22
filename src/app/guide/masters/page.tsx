@@ -10,13 +10,13 @@ import { ref, onValue, update, goOnline, goOffline } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { StageMaster } from "@/types";
-import { LogOut, Home, Swords, Heart, Sword, Zap, Save, ShieldAlert, BookOpen, Tag } from "lucide-react";
+import { LogOut, Home, Swords, Heart, Sword, Zap, Save, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 const defaultStageNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
 const defaultMasters: Record<string, StageMaster> = {};
 for (let i = 1; i <= 4; i++) {
-  defaultMasters[`master${i}`] = { name: `${defaultStageNames[i-1]}`, stageName: defaultStageNames[i-1], description: '', stamina: 100, strength: 20, magic: 20 };
+  defaultMasters[`master${i}`] = { name: `${defaultStageNames[i-1]}`, stamina: 100, strength: 20, magic: 20 };
 }
 
 export default function MastersDashboardPage() {
@@ -103,24 +103,10 @@ export default function MastersDashboardPage() {
                 <div key={masterId} className="guide-card w-full" style={{ maxWidth: '100%' }}>
                   <div className="guide-section-header">
                     <Swords size={24} className="icon-emerald"/>
-                    <h3 className="guide-section-title">{master.stageName || defaultStageNames[index]}</h3>
+                    <h3 className="guide-section-title">{master.name || defaultStageNames[index]}</h3>
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    {/* 關卡名稱 */}
-                    <div>
-                      <label className="text-xs font-extrabold text-stone-400 mb-1.5 flex items-center gap-1.5 uppercase tracking-widest">
-                        <Tag size={13}/> 關卡名稱
-                      </label>
-                      <input
-                        type="text"
-                        value={master.stageName || ''}
-                        onChange={(e) => handleLocalChange(masterId, 'stageName', e.target.value)}
-                        className="w-full bg-amber-50 border-2 border-amber-200 focus:border-amber-500 rounded-xl p-3 font-black text-center text-amber-800 outline-none transition-all placeholder:text-amber-300 placeholder:font-normal"
-                        placeholder={`第 ${index + 1} 關關卡名稱`}
-                      />
-                    </div>
-
                     {/* 關主暱稱 */}
                     <div>
                       <label className="text-xs font-extrabold text-stone-400 mb-1.5 flex items-center gap-1.5 uppercase tracking-widest">
@@ -132,20 +118,6 @@ export default function MastersDashboardPage() {
                         onChange={(e) => handleLocalChange(masterId, 'name', e.target.value)}
                         className="w-full bg-stone-100 border-2 border-transparent focus:border-emerald-400 rounded-xl p-3 font-bold text-center text-stone-800 outline-none transition-all"
                         placeholder={`輸入第 ${index + 1} 關關主暱稱`}
-                      />
-                    </div>
-
-                    {/* 關主簡介 */}
-                    <div>
-                      <label className="text-xs font-extrabold text-stone-400 mb-1.5 flex items-center gap-1.5 uppercase tracking-widest">
-                        <BookOpen size={13}/> 關主簡介
-                      </label>
-                      <textarea
-                        value={master.description || ''}
-                        onChange={(e) => handleLocalChange(masterId, 'description', e.target.value)}
-                        rows={3}
-                        className="w-full bg-stone-100 border-2 border-transparent focus:border-blue-400 rounded-xl p-3 font-medium text-stone-700 outline-none transition-all resize-none text-sm leading-relaxed"
-                        placeholder="輸入關主介紹或Boss說明..."
                       />
                     </div>
 
