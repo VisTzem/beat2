@@ -65,6 +65,35 @@ export default function MastersDashboardPage() {
     }
   };
 
+  const handleResetDefault = async (id: string) => {
+    const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
+    const idx = parseInt(id.replace("master", "")) - 1;
+    const defaultName = beastNames[idx] || "神獸";
+    
+    if (!confirm(`確定要將 ${masters[id]?.name || defaultName} 恢復成預設數值 (生命150, 力量40, 魔力40) 嗎？`)) return;
+    
+    const updated = {
+      ...masters[id],
+      stamina: 150,
+      strength: 40,
+      magic: 40
+    };
+    
+    setMasters(prev => ({ ...prev, [id]: updated }));
+    
+    try {
+      await update(ref(db, `masters/${id}`), {
+        stamina: 150,
+        strength: 40,
+        magic: 40
+      });
+      alert("已成功恢復預設值並儲存！");
+    } catch (e) {
+      console.error(e);
+      alert("儲存失敗，請檢查連線！");
+    }
+  };
+
   if (isCheckingAuth) return (
     <div className="flex items-center justify-center min-h-screen bg-stone-900">
       <div className="flex flex-col items-center gap-4 text-stone-400">
@@ -143,13 +172,21 @@ export default function MastersDashboardPage() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleSave(masterId)}
-                      disabled={isSaving === masterId}
-                      className={`guide-op-btn w-full py-3 mt-1 transition-all ${isSaving === masterId ? 'bg-emerald-500 text-white scale-95' : 'bg-stone-800 text-white hover:bg-stone-700'}`}
-                    >
-                      {isSaving === masterId ? <><ShieldAlert size={18}/> 已儲存！</> : <><Save size={18}/> 儲存設定</>}
-                    </button>
+                    <div className="flex gap-3 mt-1.5 w-full">
+                      <button
+                        onClick={() => handleResetDefault(masterId)}
+                        className="guide-op-btn flex-1 py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold transition-all text-xs rounded-xl shadow-md shadow-rose-600/20"
+                      >
+                        恢復預設 (150/40/40)
+                      </button>
+                      <button
+                        onClick={() => handleSave(masterId)}
+                        disabled={isSaving === masterId}
+                        className={`guide-op-btn flex-1 py-3 transition-all text-xs rounded-xl ${isSaving === masterId ? 'bg-emerald-500 text-white scale-95' : 'bg-stone-800 text-white hover:bg-stone-700'}`}
+                      >
+                        {isSaving === masterId ? <><ShieldAlert size={16}/> 已儲存！</> : <><Save size={16}/> 儲存設定</>}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
