@@ -219,6 +219,36 @@ function LeaderContent() {
           </div>
         </div>
 
+        {/* 關主/神獸狀態列 */}
+        <div className="bg-stone-900 text-stone-100 rounded-[2rem] p-6 shadow-xl border border-stone-850">
+          <h2 className="text-sm font-bold text-amber-400 mb-4 text-center uppercase tracking-widest">
+            {mastersData[selectedMaster]?.name || "神獸"} 狀態
+          </h2>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex flex-col items-center p-3 bg-stone-800 rounded-2xl border border-stone-700">
+              <Heart className="text-rose-400 mb-2" size={24}/>
+              <span className="text-xs text-stone-400 font-bold mb-1">體力</span>
+              <span className="text-2xl font-black text-rose-400">
+                {mastersData[selectedMaster]?.stamina ?? 100}
+              </span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-stone-800 rounded-2xl border border-stone-700">
+              <Sword className="text-amber-400 mb-2" size={24}/>
+              <span className="text-xs text-stone-400 font-bold mb-1">力量</span>
+              <span className="text-2xl font-black text-amber-400">
+                {mastersData[selectedMaster]?.strength ?? 20}
+              </span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-stone-800 rounded-2xl border border-stone-700">
+              <Zap className="text-cyan-400 mb-2" size={24}/>
+              <span className="text-xs text-stone-400 font-bold mb-1">魔力</span>
+              <span className="text-2xl font-black text-cyan-400">
+                {mastersData[selectedMaster]?.magic ?? 20}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* 行動選擇 */}
         <div className="bg-white rounded-[2rem] p-6 shadow-xl border border-stone-200">
           {isDead ? (
@@ -238,7 +268,7 @@ function LeaderContent() {
                   </span>
                 ) : (
                   <span className="bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-xs font-black">
-                    準備中...
+                    {battleState.status === "not_active" ? "可發起挑戰" : "準備中..."}
                   </span>
                 )}
               </div>
@@ -267,7 +297,7 @@ function LeaderContent() {
                 </button>
               </div>
 
-              {battleState.status === "preparing" && (
+              {battleState.status !== "ready" && (
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
