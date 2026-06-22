@@ -24,6 +24,7 @@ function LeaderContent() {
 
   const groupNames: Record<string, string> = { group1: "一", group2: "二", group3: "三", group4: "四", group5: "五", group6: "六" };
   const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
+  const [mastersData, setMastersData] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -54,6 +55,32 @@ function LeaderContent() {
 
     return () => unsubscribeTribe();
   }, [team, isCheckingAuth]);
+
+  // 監聽所有關主以取得實際關卡名稱
+  useEffect(() => {
+    if (isCheckingAuth) return;
+    const mastersRef = ref(db, "masters");
+    const unsubscribeMasters = onValue(mastersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setMastersData(snapshot.val());
+      }
+    });
+    return () => unsubscribeMasters();
+  }, [isCheckingAuth]);
+
+  // 當關主載入完成，同步更新 selectedMaster 預設值
+  useEffect(() => {
+    if (Object.keys(mastersData).length > 0) {
+      const keys = Object.keys(mastersData).sort((a, b) => {
+        const numA = parseInt(a.replace("master", "")) || 0;
+        const numB = parseInt(b.replace("master", "")) || 0;
+        return numA - numB;
+      });
+      if (!keys.includes(selectedMaster)) {
+        setSelectedMaster(keys[0]);
+      }
+    }
+  }, [mastersData]);
 
   // 監聽選定關主的戰鬥狀態
   useEffect(() => {
@@ -146,9 +173,23 @@ function LeaderContent() {
               onChange={(e) => setSelectedMaster(e.target.value)}
               className="bg-stone-800 text-amber-400 px-3 py-1 text-sm rounded-lg font-black border-none outline-none cursor-pointer"
             >
-              {Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
-                <option key={key} value={key}>{templeNames[i]}</option>
-              ))}
+              {Object.keys(mastersData).length > 0 ? (
+                Object.keys(mastersData).sort((a, b) => {
+                  const numA = parseInt(a.replace("master", "")) || 0;
+                  const numB = parseInt(b.replace("master", "")) || 0;
+                  return numA - numB;
+                }).map((key) => {
+                  const idx = parseInt(key.replace("master", "")) - 1;
+                  const name = mastersData[key]?.stageName || templeNames[idx] || `${idx + 1}關主`;
+                  return (
+                    <option key={key} value={key}>{name}</option>
+                  );
+                })
+              ) : (
+                Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
+                  <option key={key} value={key}>{templeNames[i]}</option>
+                ))
+              )}
             </select>
             <div className="bg-amber-500 text-stone-900 font-black px-3 py-1 rounded-lg text-xs">
               第 {round} 回合

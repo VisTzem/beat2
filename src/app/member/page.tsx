@@ -64,8 +64,15 @@ export default function MemberPage() {
   }, []);
 
   const groupKeys = ["group1", "group2", "group3", "group4", "group5", "group6"];
-  const masterKeys = ["master1", "master2", "master3", "master4", "master5", "master6"];
   const groupNames = ["一", "二", "三", "四", "五", "六"];
+
+  const activeMasterKeys = Object.keys(mastersData).length > 0
+    ? Object.keys(mastersData).sort((a, b) => {
+        const numA = parseInt(a.replace("master", "")) || 0;
+        const numB = parseInt(b.replace("master", "")) || 0;
+        return numA - numB;
+      })
+    : ["master1", "master2", "master3", "master4", "master5", "master6"];
 
   return (
     <main className="relative flex flex-col items-center min-h-screen member-main-bg text-stone-900">
@@ -106,10 +113,11 @@ export default function MemberPage() {
             <div className="ancient-header-cell text-cyan-300"><Zap size={18}/> 魔力</div>
           </div>
 
-          {(viewMode === 'tribes' ? groupKeys : masterKeys).map((key, index) => {
+          {(viewMode === 'tribes' ? groupKeys : activeMasterKeys).map((key, index) => {
+            const masterNum = parseInt(key.replace("master", "")) || (index + 1);
             const stats = viewMode === 'tribes' 
               ? (tribesData[key] || { stamina: 0, strength: 0, magic: 0, goddessBlessing: 0 })
-              : (mastersData[key] || { name: `第 ${index + 1} 關關主`, stamina: 0, strength: 0, magic: 0 });
+              : (mastersData[key] || { name: `第 ${masterNum} 關關主`, stamina: 0, strength: 0, magic: 0 });
             
             const tStats = stats as TribeStats;
 
@@ -127,7 +135,7 @@ export default function MemberPage() {
 
             const displayName = viewMode === 'tribes'
               ? `第 ${groupNames[index]} 小組`
-              : (stats as StageMaster).name || `第 ${index + 1} 關關主`;
+              : (stats as StageMaster).name || `第 ${masterNum} 關關主`;
             const masterStats = stats as StageMaster;
 
             return (
@@ -162,7 +170,7 @@ export default function MemberPage() {
 
                 <div className="wood-plank-stats">
                   <div className="member-group-name">
-                    <span className="member-group-badge">{index + 1}</span>
+                    <span className="member-group-badge">{viewMode === 'tribes' ? (index + 1) : masterNum}</span>
                     <div className="flex flex-col items-start">
                       {viewMode === 'masters' && masterStats.stageName && (
                         <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none mb-0.5">{masterStats.stageName}</span>

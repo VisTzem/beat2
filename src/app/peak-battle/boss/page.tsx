@@ -13,9 +13,9 @@ export default function BossPage() {
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // 初始化 Boss 三圍設為 676, 76, 67，預設名稱為程式馬
+  // 初始化 Boss 三圍設為 676, 76, 67，預設名稱為原始馬終極大boss
   const [bossState, setBossState] = useState({ hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" });
-  const [bossName, setBossName] = useState("程式馬");
+  const [bossName, setBossName] = useState("原始馬終極大boss");
   const [round, setRound] = useState(1);
   const [teamsState, setTeamsState] = useState<Record<string, any>>({});
   const [tribesData, setTribesData] = useState<Record<string, any>>({});
@@ -42,7 +42,7 @@ export default function BossPage() {
         setRound(data.round || 1);
         if (data.boss) {
           setBossState(data.boss);
-          setBossName(data.boss.name || "程式馬");
+          setBossName(data.boss.name || "原始馬終極大boss");
           if (data.boss.status === "preparing" && !data.boss.action) {
             setSelectedAction("");
           }
@@ -51,10 +51,10 @@ export default function BossPage() {
           setTeamsState(data.teams);
         }
       } else {
-        // 初始化 peakBattle 資料 (三圍 676, 76, 67, 名稱程式馬)
+        // 初始化 peakBattle 資料 (三圍 676, 76, 67, 名稱原始馬終極大boss)
         update(ref(db, `peakBattle`), {
           round: 1,
-          boss: { name: "程式馬", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" },
+          boss: { name: "原始馬終極大boss", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" },
           teams: groupKeys.reduce((acc, key) => ({ ...acc, [key]: { action: "", status: "preparing" } }), {})
         });
       }
@@ -293,7 +293,7 @@ export default function BossPage() {
                   }}
                   className="bg-stone-900 border border-stone-700 text-amber-400 font-black px-3 py-1.5 rounded-xl outline-none text-sm cursor-pointer"
                 >
-                  <option value="程式馬">程式馬</option>
+                  <option value="原始馬終極大boss">原始馬終極大boss</option>
                   <option value="日月">日月神獸</option>
                   <option value="炎">炎神獸</option>
                   <option value="海">海神獸</option>

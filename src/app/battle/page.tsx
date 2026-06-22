@@ -1,13 +1,14 @@
 // src/app/battle/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Swords, ShieldCheck, Users, Home, Lock } from "lucide-react";
 import Link from "next/link";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { ref, onValue } from "firebase/database";
 
 export default function BattleLoginPage() {
   const router = useRouter();
@@ -16,6 +17,26 @@ export default function BattleLoginPage() {
   const [selectedMaster, setSelectedMaster] = useState("master1");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [mastersData, setMastersData] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    const mastersRef = ref(db, "masters");
+    const unsubscribeMasters = onValue(mastersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        setMastersData(val);
+        const keys = Object.keys(val).sort((a, b) => {
+          const numA = parseInt(a.replace("master", "")) || 0;
+          const numB = parseInt(b.replace("master", "")) || 0;
+          return numA - numB;
+        });
+        if (keys.length > 0) {
+          setSelectedMaster(keys[0]);
+        }
+      }
+    });
+    return () => unsubscribeMasters();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,9 +117,23 @@ export default function BattleLoginPage() {
               <div className="guide-login-group">
                 <label className="guide-label"><ShieldCheck size={18} className="icon-amber" /> 選擇您的神廟</label>
                 <select value={selectedMaster} onChange={(e) => setSelectedMaster(e.target.value)} className="guide-select">
-                  {Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
-                    <option key={key} value={key}>{templeNames[i]}關主</option>
-                  ))}
+                  {Object.keys(mastersData).length > 0 ? (
+                    Object.keys(mastersData).sort((a, b) => {
+                      const numA = parseInt(a.replace("master", "")) || 0;
+                      const numB = parseInt(b.replace("master", "")) || 0;
+                      return numA - numB;
+                    }).map((key) => {
+                      const idx = parseInt(key.replace("master", "")) - 1;
+                      const name = mastersData[key]?.stageName || templeNames[idx] || `${idx + 1}關主`;
+                      return (
+                        <option key={key} value={key}>{name}關主</option>
+                      );
+                    })
+                  ) : (
+                    Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
+                      <option key={key} value={key}>{templeNames[i]}關主</option>
+                    ))
+                  )}
                 </select>
               </div>
             )}
