@@ -112,6 +112,8 @@ export default function BossPage() {
       const currentHp = tribesData[key]?.stamina || 0;
       if (currentHp <= 0) {
         updates[`tribes/${key}/stamina`] = 50; // 復活已陣亡的小組，恢復50點體力
+        updates[`peakBattle/teams/${key}/action`] = "";
+        updates[`peakBattle/teams/${key}/status`] = "preparing";
       }
     });
     await update(ref(db), updates);

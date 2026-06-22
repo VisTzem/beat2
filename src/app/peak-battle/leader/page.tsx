@@ -17,6 +17,8 @@ function LeaderContent() {
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [stats, setStats] = useState({ stamina: 0, strength: 0, magic: 0 });
+  const [isStatsLoaded, setIsStatsLoaded] = useState(false);
+  const [isBattleLoaded, setIsBattleLoaded] = useState(false);
   const [round, setRound] = useState(1);
   const [battleState, setBattleState] = useState({ action: "", status: "preparing" });
   const [selectedAction, setSelectedAction] = useState("");
@@ -53,6 +55,7 @@ function LeaderContent() {
           magic: data.magic || 0,
         });
       }
+      setIsStatsLoaded(true);
     });
 
     // 監聽戰鬥狀態
@@ -86,6 +89,7 @@ function LeaderContent() {
           boss: { name: "黑化原始馬——木馬", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" }
         }).catch(e => console.error("Firebase update error:", e));
       }
+      setIsBattleLoaded(true);
     });
 
     return () => {
@@ -95,17 +99,23 @@ function LeaderContent() {
   }, [team, router, isCheckingAuth]);
 
   // 處理死亡隊伍自動準備的邏輯
-  const isDead = stats.stamina <= 0;
+  const isDead = isStatsLoaded && stats.stamina <= 0;
 
   useEffect(() => {
-    if (isCheckingAuth || !team || !groupNames[team]) return;
+    if (isCheckingAuth || !team || !groupNames[team] || !isStatsLoaded || !isBattleLoaded) return;
     if (isDead && battleState.status === "preparing") {
       update(ref(db, `peakBattle/teams/${team}`), {
         action: "dead",
         status: "ready"
       }).catch(e => console.error("Auto ready dead team error:", e));
+    } else if (!isDead && battleState.action === "dead") {
+      // 如果小組復活了，但戰鬥狀態還停留在 dead，則自動重置為準備中
+      update(ref(db, `peakBattle/teams/${team}`), {
+        action: "",
+        status: "preparing"
+      }).catch(e => console.error("Reset revived team error:", e));
     }
-  }, [isDead, battleState.status, team, isCheckingAuth]);
+  }, [isDead, battleState.status, battleState.action, team, isCheckingAuth, isStatsLoaded, isBattleLoaded]);
 
   const handleConfirmReady = async () => {
     if (!selectedAction) return alert("請先選擇一種攻擊方式！");
