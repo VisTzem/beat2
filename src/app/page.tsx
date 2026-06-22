@@ -10,6 +10,8 @@ function NavCard({ href, title, description, icon: Icon, isPrimary = false }: { 
   const cardRef = useRef<HTMLAnchorElement>(null);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLAnchorElement>) => {
+    // 🌟 觸控設備（手機手指點擊）不執行位移動畫，防範點擊動作被位移干擾取消
+    if (e.pointerType !== "mouse") return;
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -41,20 +43,21 @@ function NavCard({ href, title, description, icon: Icon, isPrimary = false }: { 
       href={href}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className={`w-full max-w-[360px] shrink-0 group relative flex flex-col items-center justify-center text-center p-10 min-h-[300px] rounded-[2.5rem] shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] glow-card elastic-card ${
+      className={`w-full max-w-[360px] shrink-0 group relative flex flex-col items-center justify-center text-center p-10 min-h-[300px] rounded-[2.5rem] shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] glow-card elastic-card border backdrop-blur-md transition-all ${
         isPrimary 
-          ? "bg-amber-950 text-amber-50 glow-card-dark" 
-          : "bg-white text-stone-900" 
+          ? "bg-amber-950/75 border-amber-900/30 text-amber-50 glow-card-dark" 
+          : "bg-white/75 border-stone-200/50 text-stone-900" 
       }`}
     >
-      <div className="flex flex-col items-center relative z-10 w-full">
+      {/* 🌟 使用 pointer-events-none 確保任何點擊點都是直接穿透到外層 <a> 連結 */}
+      <div className="flex flex-col items-center relative z-10 w-full pointer-events-none">
         <div className={`mb-4 p-3 rounded-2xl shadow-inner ${isPrimary ? "bg-amber-400 text-amber-950" : "bg-stone-100 text-stone-900"}`}>
           <Icon size={32} />
         </div>
         <h2 className="text-3xl font-black mb-2 tracking-wider leading-tight w-full break-words">{title}</h2>
         <p className="text-base font-medium opacity-70 leading-relaxed max-w-[85%] break-words">{description}</p>
       </div>
-      <div className={`mt-6 w-14 h-14 shrink-0 rounded-full flex items-center justify-center transition-all duration-300 group-hover:gap-2 relative z-10 shadow-md ${isPrimary ? "bg-amber-400 text-amber-950" : "bg-stone-900 text-white"}`}>
+      <div className={`mt-6 w-14 h-14 shrink-0 rounded-full flex items-center justify-center transition-all duration-300 group-hover:gap-2 relative z-10 shadow-md pointer-events-none ${isPrimary ? "bg-amber-400 text-amber-950" : "bg-stone-900 text-white"}`}>
         <ArrowRight size={28} className="transition-transform duration-300 group-hover:translate-x-1" />
       </div>
     </Link>
