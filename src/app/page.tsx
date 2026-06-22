@@ -117,16 +117,53 @@ function WeaponPhysics({ spawnRate, forceMultiplier }: { spawnRate: number, forc
       createEmojiTexture('🪓')  
     ];
 
+    // 載入使用者放在 pics 資料夾的四張圖片，並轉成 128x128 畫布紋理
+    const photoUrls = [
+      "/pics/1f277e3c-5721-496c-882b-4bdff48e0ff1-removebg-preview.png",
+      "/pics/84c0c0e1-33ce-4058-8e9d-979e1870ab90-removebg-preview.png",
+      "/pics/IMG_8124-removebg-preview.png",
+      "/pics/b2a372b4-27d1-4a81-929e-41237305ded2-removebg-preview.png"
+    ];
+
+    const photoTextures: string[] = [];
+
+    photoUrls.forEach(url => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          // 使圖片置中，且等比例縮放到適合 128x128 畫布的大小
+          const scale = Math.min(128 / img.width, 128 / img.height);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          const x = (128 - w) / 2;
+          const y = (128 - h) / 2;
+          ctx.drawImage(img, x, y, w, h);
+        }
+        photoTextures.push(canvas.toDataURL('image/png'));
+      };
+    });
+
     const spawnWeapon = () => {
       const x = Math.random() * window.innerWidth;
       const y = window.innerHeight + 100;
       const size = 60 + Math.random() * 40;
       
+      // 有 30% 機率丟出使用者的照片，70% 機率丟出預設武器 Emoji
+      const isPhoto = photoTextures.length > 0 && Math.random() < 0.3;
+      const selectedTexture = isPhoto
+        ? photoTextures[Math.floor(Math.random() * photoTextures.length)]
+        : weaponTextures[Math.floor(Math.random() * weaponTextures.length)];
+
       const weapon = Matter.Bodies.rectangle(x, y, size, size, {
         restitution: 0.6,
         render: {
           sprite: {
-            texture: weaponTextures[Math.floor(Math.random() * weaponTextures.length)],
+            texture: selectedTexture,
             xScale: size / 128, 
             yScale: size / 128,
           }
