@@ -53,9 +53,9 @@ function MasterContent() {
 
   const groupKeys = ["group1", "group2", "group3", "group4", "group5", "group6"];
   const groupNames = ["一", "二", "三", "四", "五", "六"];
-  const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
+  const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
   const masterIndex = parseInt(masterId.replace("master", "")) - 1;
-  const currentTempleName = templeNames[masterIndex] || "未知神廟";
+  const currentBeastName = beastNames[masterIndex] || "神獸";
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -65,13 +65,12 @@ function MasterContent() {
     return () => unsubscribeAuth();
   }, [router]);
 
-  // 監聽關主自己的數值 (第一階段使用 stageMasters)
+  // 監聽神獸自己的數值
   useEffect(() => {
     if (isCheckingAuth) return;
-    const defaultMasterNames = ["外省老兵", "勞大", "車不優", "音遊詩人", "橙哥", "Kelly"];
-    const defaultMasterName = defaultMasterNames[masterIndex] || "關主";
+    const defaultMasterName = beastNames[masterIndex] || "神獸";
 
-    const masterRef = ref(db, `stageMasters/${masterId}`);
+    const masterRef = ref(db, `masters/${masterId}`);
     const unsubscribeMaster = onValue(masterRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -82,18 +81,18 @@ function MasterContent() {
           name: data.name || defaultMasterName
         });
       } else {
-        // 初始化 stageMasters 資料
-        update(ref(db, `stageMasters/${masterId}`), {
+        // 初始化 masters 資料
+        update(ref(db, `masters/${masterId}`), {
           name: defaultMasterName,
           stamina: 100,
           strength: 20,
           magic: 20,
-          stageName: currentTempleName
+          stageName: defaultMasterName
         });
       }
     });
     return () => unsubscribeMaster();
-  }, [masterId, isCheckingAuth, currentTempleName, masterIndex]);
+  }, [masterId, isCheckingAuth, currentBeastName, masterIndex]);
 
   // 監聽選中小組的數值
   useEffect(() => {
@@ -241,9 +240,9 @@ function MasterContent() {
     const newTMag = Math.max(0, tMag + tMagDiff);
 
     const updates: Record<string, any> = {};
-    updates[`stageMasters/${masterId}/stamina`] = newMHp;
-    updates[`stageMasters/${masterId}/strength`] = newMStr;
-    updates[`stageMasters/${masterId}/magic`] = newMMag;
+    updates[`masters/${masterId}/stamina`] = newMHp;
+    updates[`masters/${masterId}/strength`] = newMStr;
+    updates[`masters/${masterId}/magic`] = newMMag;
 
     updates[`tribes/${selectedTribe}/stamina`] = newTHp;
     updates[`tribes/${selectedTribe}/strength`] = newTStr;
@@ -301,9 +300,9 @@ function MasterContent() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10 gap-4">
             <div>
               <h1 className="text-3xl font-black text-amber-500 flex items-center gap-3">
-                <ShieldAlert /> {currentTempleName}對戰台
+                <ShieldAlert /> {currentBeastName}對戰台
               </h1>
-              <p className="text-sm font-bold text-stone-400 mt-1">關主暱稱：{masterStats.name}</p>
+              <p className="text-sm font-bold text-stone-400 mt-1">神獸名稱：{masterStats.name}</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-4">

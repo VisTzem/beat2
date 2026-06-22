@@ -23,7 +23,7 @@ function LeaderContent() {
   const [selectedAction, setSelectedAction] = useState("");
 
   const groupNames: Record<string, string> = { group1: "一", group2: "二", group3: "三", group4: "四", group5: "五", group6: "六" };
-  const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
+  const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
   const [mastersData, setMastersData] = useState<Record<string, any>>({});
 
   useEffect(() => {
@@ -178,16 +178,16 @@ function LeaderContent() {
                   const numA = parseInt(a.replace("master", "")) || 0;
                   const numB = parseInt(b.replace("master", "")) || 0;
                   return numA - numB;
-                }).map((key) => {
+                }).slice(0, 4).map((key) => {
                   const idx = parseInt(key.replace("master", "")) - 1;
-                  const name = mastersData[key]?.stageName || templeNames[idx] || `${idx + 1}關主`;
+                  const name = mastersData[key]?.name || `${beastNames[idx] || '神'}獸`;
                   return (
                     <option key={key} value={key}>{name}</option>
                   );
                 })
               ) : (
-                Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, i) => (
-                  <option key={key} value={key}>{templeNames[i]}</option>
+                ["master1", "master2", "master3", "master4"].map((key, i) => (
+                  <option key={key} value={key}>{beastNames[i]}神獸</option>
                 ))
               )}
             </select>
@@ -280,7 +280,7 @@ function LeaderContent() {
 
               {battleState.status === "ready" && (
                 <div className="w-full mt-6 py-4 rounded-2xl bg-emerald-50 text-emerald-600 font-black text-center border border-emerald-200">
-                  等待關主進行回合結算...
+                  等待 {mastersData[selectedMaster]?.name || "神獸"} 進行回合結算...
                 </div>
               )}
             </>

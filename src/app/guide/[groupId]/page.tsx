@@ -9,7 +9,7 @@ import { ref, onValue, update, goOnline, goOffline } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { TribeStats, StageMaster } from "@/types";
-import { Sparkles, LogOut, Dices, ShieldCheck, Plus, Minus, Home, Zap, Sword, Heart, TrendingUp, Flag, BookOpen, Tag } from "lucide-react";
+import { Sparkles, LogOut, Dices, ShieldCheck, Plus, Minus, Home, Zap, Sword, Heart, TrendingUp, Flag, BookOpen, Tag, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
 // 固定基礎值
@@ -32,6 +32,7 @@ export default function GuideDashboardPage() {
   const [manualValue, setManualValue] = useState<string>("5");
   const [confirmAction, setConfirmAction] = useState<any | null>(null);
   const [showStagePrompt, setShowStagePrompt] = useState(false);
+  const [selectedStageOption, setSelectedStageOption] = useState<number | 'skip' | null>(null);
 
   // 根據女神祝福層數決定基礎值（固定，不可手動更改）
   const blessingCount = typeof currentStats.goddessBlessing === 'number'
@@ -70,24 +71,27 @@ export default function GuideDashboardPage() {
   }, [groupId]);
 
   const handleConfirmStep1 = () => {
+    setSelectedStageOption(null);
     setShowStagePrompt(true);
   };
 
-  const handleSelectStage = async (stageNum: number | 'skip') => {
-    if (!confirmAction) return;
+  const handleExecuteFinal = async () => {
+    if (!confirmAction || selectedStageOption === null) return;
     const targetStats = { ...confirmAction.payload.targetStats };
-    if (stageNum !== 'skip') {
-      const stageKey = `stage${stageNum}`;
+    if (selectedStageOption !== 'skip') {
+      const stageKey = `stage${selectedStageOption}`;
       targetStats[stageKey] = (currentStats[stageKey as keyof TribeStats] as number || 0) + 1;
     }
     await update(ref(db, `tribes/${groupId}`), targetStats);
     setConfirmAction(null);
     setShowStagePrompt(false);
+    setSelectedStageOption(null);
   };
 
   const handleCancelAll = () => {
     setConfirmAction(null);
     setShowStagePrompt(false);
+    setSelectedStageOption(null);
   };
 
   const autoGain = baseValues[selectedStageType] + (difficulty * diceRoll);
@@ -270,7 +274,7 @@ export default function GuideDashboardPage() {
 
             {/* 右欄：自訂微調 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div className="guide-card" style={{ height: '100%' }}>
+              <div className="guide-card">
                 <div className="guide-section-header">
                   <TrendingUp size={24} className="icon-emerald"/>
                   <h3 className="guide-section-title">自訂數值微調</h3>
@@ -312,6 +316,52 @@ export default function GuideDashboardPage() {
                   })}
                 </div>
               </div>
+              
+              {/* 闖關進度管理 (手動修改每一關的通關次數) */}
+              <div className="guide-card">
+                <div className="guide-section-header">
+                  <Flag size={24} className="icon-indigo text-indigo-500" />
+                  <h3 className="guide-section-title">神廟通關次數手動調整</h3>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {[1, 2, 3, 4, 5, 6].map(stageNum => {
+                    const templeNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
+                    const stageKey = `stage${stageNum}`;
+                    const currentCount = currentStats[stageKey as keyof TribeStats] as number || 0;
+
+                    return (
+                      <div key={stageNum} className="flex justify-between items-center bg-stone-50 border border-stone-200 p-3 rounded-xl">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm text-stone-850">{templeNames[stageNum - 1]}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={async () => {
+                              const next = Math.max(0, currentCount - 1);
+                              await update(ref(db, `tribes/${groupId}`), { [stageKey]: next });
+                            }}
+                            className="bg-white border border-stone-300 hover:bg-stone-50 p-1.5 rounded-lg text-stone-600 shadow-sm transition-colors"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="font-black text-base w-6 text-center text-stone-800">{currentCount}</span>
+                          <button
+                            onClick={async () => {
+                              const next = currentCount + 1;
+                              await update(ref(db, `tribes/${groupId}`), { [stageKey]: next });
+                            }}
+                            className="bg-amber-500 text-stone-900 hover:bg-amber-400 p-1.5 rounded-lg font-black shadow-sm transition-colors"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -355,6 +405,41 @@ export default function GuideDashboardPage() {
             </div>
           </div>
 
+          {/* 系統重設 (恢復預設屬性值) */}
+          <div className="guide-card mt-6">
+            <div className="guide-section-header">
+              <RefreshCw size={24} className="icon-red text-rose-500" />
+              <h3 className="guide-section-title text-rose-600">系統危險區</h3>
+            </div>
+            <div className="flex justify-between items-center bg-rose-50 border border-rose-100 p-4 rounded-2xl">
+              <div className="flex flex-col gap-1">
+                <span className="font-bold text-rose-800 flex items-center gap-1.5">
+                  ⚠️ 恢復預設屬性數值
+                </span>
+                <span className="text-xs text-rose-500 font-medium">
+                  將體力恢復為 30，其餘屬性（力量、魔力、女神祝福）恢復為 10 / 0。
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  const check = window.confirm("確認是否恢復預設數值？此小組的體力將變為 30，力量將變為 10，魔力將變為 10，且女神祝福將重設為 0。");
+                  if (check) {
+                    update(ref(db, `tribes/${groupId}`), {
+                      stamina: 30,
+                      strength: 10,
+                      magic: 10,
+                      goddessBlessing: 0
+                    });
+                    alert("已成功恢復預設屬性數值！");
+                  }
+                }}
+                className="bg-rose-600 text-white hover:bg-rose-500 px-5 py-2.5 rounded-xl font-black text-sm transition-all shadow-md shadow-rose-600/20"
+              >
+                恢復預設值
+              </button>
+            </div>
+          </div>
+
         </motion.div>
 
         {/* 確認 Modal */}
@@ -381,33 +466,57 @@ export default function GuideDashboardPage() {
                 </motion.div>
               ) : (
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="guide-modal-content max-w-md w-full">
-                  <h3 className="guide-modal-title mb-2 text-stone-800 text-center">登錄完成的闖關關卡</h3>
-                  <p className="text-sm text-stone-500 mb-6 font-medium text-center">本次數值調整是否同時登錄以下神廟的闖關進度？</p>
+                  <h3 className="guide-modal-title mb-2 text-stone-850 text-center">登錄完成的闖關關卡</h3>
+                  <p className="text-sm text-stone-500 mb-6 font-medium text-center">請選擇本次調整同時登錄完成的神廟關卡（單選）：</p>
                   
-                  <div className="grid grid-cols-2 gap-3 mb-6 w-full">
-                    {["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"].map((temple, idx) => (
-                      <button
-                        key={temple}
-                        onClick={() => handleSelectStage(idx + 1)}
-                        className="py-3 px-2 rounded-xl bg-amber-50 border border-amber-200 hover:border-amber-500 text-amber-900 text-sm font-black transition-all shadow-sm"
-                      >
-                        {temple}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-2 gap-3 mb-4 w-full">
+                    {["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"].map((temple, idx) => {
+                      const isSelected = selectedStageOption === (idx + 1);
+                      return (
+                        <button
+                          key={temple}
+                          type="button"
+                          onClick={() => setSelectedStageOption(idx + 1)}
+                          className={`py-3 px-2 rounded-xl border-2 text-sm font-black transition-all shadow-sm ${
+                            isSelected 
+                              ? 'bg-amber-500 text-stone-900 border-amber-400 font-extrabold' 
+                              : 'bg-amber-50/50 text-amber-900 border-amber-100 hover:border-amber-400 font-bold'
+                          }`}
+                        >
+                          {temple}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStageOption('skip')}
+                      className={`col-span-2 py-3 px-2 rounded-xl border-2 text-sm font-black transition-all shadow-sm ${
+                        selectedStageOption === 'skip'
+                          ? 'bg-stone-800 text-white border-stone-700 font-extrabold'
+                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-400 font-bold'
+                      }`}
+                    >
+                      略過 (僅調整數值，不登錄進度)
+                    </button>
                   </div>
                   
-                  <div className="flex flex-col gap-2 w-full border-t border-stone-200 pt-4">
-                    <button
-                      onClick={() => handleSelectStage('skip')}
-                      className="w-full py-3.5 rounded-xl bg-stone-900 text-white hover:bg-stone-800 text-base font-black transition-all shadow-md"
-                    >
-                      略過 (僅調整數值)
-                    </button>
+                  <div className="grid grid-cols-2 gap-3 w-full border-t border-stone-200 pt-4 mt-2">
                     <button
                       onClick={handleCancelAll}
-                      className="w-full py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-500 text-sm font-bold transition-all"
+                      className="py-3.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 font-black text-sm transition-all"
                     >
                       取消本次變更
+                    </button>
+                    <button
+                      disabled={selectedStageOption === null}
+                      onClick={handleExecuteFinal}
+                      className={`py-3.5 rounded-xl text-sm font-black transition-all shadow-md ${
+                        selectedStageOption !== null
+                          ? 'bg-amber-500 text-stone-900 hover:bg-amber-400 shadow-amber-500/20'
+                          : 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
+                      }`}
+                    >
+                      確認送出
                     </button>
                   </div>
                 </motion.div>
