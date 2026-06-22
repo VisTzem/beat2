@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { ref, onValue, update } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
-import { Heart, Sword, Zap, Shield, ShieldAlert, Activity, RefreshCw } from "lucide-react";
+import { Heart, Sword, Zap, Shield, ShieldAlert, Activity, RefreshCw, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export default function BossPage() {
   const router = useRouter();
@@ -223,7 +224,10 @@ export default function BossPage() {
   if (isCheckingAuth) return <div className="min-h-screen bg-stone-900 flex items-center justify-center text-white">驗證中...</div>;
 
   return (
-    <main className="min-h-screen bg-stone-900 text-stone-100 p-4 md:p-8 relative">
+    <main className="min-h-screen bg-stone-900 text-stone-100 p-4 md:p-8 relative pt-16 md:pt-8">
+      <Link href="/peak-battle" className="absolute top-4 left-4 flex items-center gap-2 bg-stone-850 border border-stone-700 hover:bg-stone-800 px-4 py-2 rounded-full shadow-lg text-stone-300 transition-colors font-bold z-30">
+        <Home size={18} /> 返回選角
+      </Link>
       
       {/* === 程式馬/神獸血量小於1時，顯示血量剩餘1，並且血條大大顯示於螢幕中央 === */}
       {currentHp < 1 && (
