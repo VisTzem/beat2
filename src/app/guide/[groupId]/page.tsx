@@ -149,7 +149,19 @@ export default function GuideDashboardPage() {
               <div className="guide-status-icon"><ShieldCheck size={32} /></div>
               <div>
                 <p className="guide-status-subtitle">正在管理</p>
-                <h2 className="guide-status-title">第 {groupNames[groupId]} 組部落</h2>
+                <div className="flex items-center">
+                  <select
+                    value={groupId}
+                    onChange={(e) => router.push(`/guide/${e.target.value}`)}
+                    className="guide-status-title bg-transparent text-white font-black outline-none border-b-2 border-amber-400 cursor-pointer pr-4"
+                  >
+                    {Object.entries(groupNames).map(([key, val]) => (
+                      <option key={key} value={key} className="bg-stone-900 text-stone-100">
+                        第 {val} 組部落
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             <button onClick={handleLogout} className="guide-op-btn guide-btn-logout">
