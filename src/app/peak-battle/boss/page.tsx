@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ref, onValue, update } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
-import { Heart, Sword, Zap, Shield, ShieldAlert, Activity, RefreshCw, Home } from "lucide-react";
+import { Heart, Sword, Zap, Shield, ShieldAlert, Activity, RefreshCw, Home, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -122,6 +122,27 @@ export default function BossPage() {
     });
     await update(ref(db), updates);
     alert("已使用女神像！復活所有陣亡的小組並恢復 50 點體力！");
+  };
+
+  const handleCancelAllReady = async () => {
+    if (!confirm("確定要將所有小組的準備狀態改為「準備中」嗎？")) return;
+    
+    const updates: Record<string, any> = {};
+    groupKeys.forEach(key => {
+      const currentHp = tribesData[key]?.stamina || 0;
+      if (currentHp > 0) {
+        updates[`peakBattle/teams/${key}/action`] = "";
+        updates[`peakBattle/teams/${key}/status`] = "preparing";
+      }
+    });
+    
+    try {
+      await update(ref(db), updates);
+      alert("已將所有存活小組重置為準備中！");
+    } catch (e) {
+      console.error(e);
+      alert("重置失敗，請檢查網路連線！");
+    }
   };
 
   // 當前 Boss 血量與百分比 (小於 1 時顯示剩餘 1)
@@ -445,15 +466,25 @@ export default function BossPage() {
         </div>
 
         {/* 底部控制區塊 */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mt-4">
-          {/* 女神像復活能力僅能在三個以上的隊伍陣亡時使用 */}
-          <button 
-            onClick={handleRevive}
-            disabled={deadTeamsCount < 3}
-            className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-black transition-all ${deadTeamsCount >= 3 ? 'bg-emerald-500 text-stone-900 hover:bg-emerald-400 shadow-lg shadow-emerald-500/30' : 'bg-stone-800 text-stone-600 cursor-not-allowed border border-stone-700'}`}
-          >
-            <RefreshCw size={20} /> 女神像 ({deadTeamsCount}/3 陣亡)
-          </button>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mt-4 w-full">
+          <div className="flex flex-wrap gap-4 w-full md:w-auto">
+            {/* 女神像復活能力僅能在三個以上的隊伍陣亡時使用 */}
+            <button 
+              onClick={handleRevive}
+              disabled={deadTeamsCount < 3}
+              className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-black transition-all ${deadTeamsCount >= 3 ? 'bg-emerald-500 text-stone-900 hover:bg-emerald-400 shadow-lg shadow-emerald-500/30' : 'bg-stone-800 text-stone-600 cursor-not-allowed border border-stone-700'}`}
+            >
+              <RefreshCw size={20} /> 女神像 ({deadTeamsCount}/3 陣亡)
+            </button>
+
+            {/* 取消全員準備按鈕 */}
+            <button 
+              onClick={handleCancelAllReady}
+              className="flex items-center gap-2 px-6 py-4 rounded-2xl font-black transition-all bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 shadow-lg"
+            >
+              <X size={20} /> 取消全員準備
+            </button>
+          </div>
 
           <button 
             onClick={handleAttack}
