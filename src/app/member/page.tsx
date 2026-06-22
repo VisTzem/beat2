@@ -66,13 +66,7 @@ export default function MemberPage() {
   const groupKeys = ["group1", "group2", "group3", "group4", "group5", "group6"];
   const groupNames = ["一", "二", "三", "四", "五", "六"];
 
-  const activeMasterKeys = Object.keys(mastersData).length > 0
-    ? Object.keys(mastersData).sort((a, b) => {
-        const numA = parseInt(a.replace("master", "")) || 0;
-        const numB = parseInt(b.replace("master", "")) || 0;
-        return numA - numB;
-      })
-    : ["master1", "master2", "master3", "master4", "master5", "master6"];
+  const activeMasterKeys = ["master1", "master2", "master3", "master4"];
 
   return (
     <main className="relative flex flex-col items-center min-h-screen member-main-bg text-stone-900">
@@ -82,7 +76,7 @@ export default function MemberPage() {
         <h1 className="page-header flex flex-col items-center justify-center gap-2">
           <div className="flex items-center gap-4">
             <Shield className="w-12 h-12 text-amber-950" />
-            {viewMode === 'tribes' ? '部落即時看板' : '關主狀態看板'}
+             {viewMode === 'tribes' ? '部落即時看板' : '神獸狀態看板'}
             <div className="relative flex h-6 w-6">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-full w-full bg-emerald-500"></span>
@@ -97,8 +91,8 @@ export default function MemberPage() {
               onChange={(e) => setViewMode(e.target.value as 'tribes' | 'masters')}
               className="bg-stone-800 text-amber-400 px-2 py-1 text-sm rounded-lg font-bold border-none outline-none cursor-pointer"
             >
-              <option value="tribes">各組小組員</option>
-              <option value="masters">各關關主</option>
+               <option value="tribes">各組小組員</option>
+               <option value="masters">四個神獸</option>
             </select>
           </div>
         </h1>
@@ -106,7 +100,7 @@ export default function MemberPage() {
         <div className="ancient-board-wrapper mb-12">
           <div className="ancient-board-header">
             <div className="ancient-header-cell align-left">
-              {viewMode === 'tribes' ? <><Users size={18}/> 部落組別</> : <><Swords size={18}/> 關主稱號</>}
+               {viewMode === 'tribes' ? <><Users size={18}/> 部落組別</> : <><Swords size={18}/> 神獸稱號</>}
             </div>
             <div className="ancient-header-cell text-rose-300"><Heart size={18}/> 體力</div>
             <div className="ancient-header-cell text-amber-300"><Sword size={18}/> 力量</div>
@@ -115,9 +109,10 @@ export default function MemberPage() {
 
           {(viewMode === 'tribes' ? groupKeys : activeMasterKeys).map((key, index) => {
             const masterNum = parseInt(key.replace("master", "")) || (index + 1);
+            const beastNames = ["日月", "炎", "海", "雷"];
             const stats = viewMode === 'tribes' 
               ? (tribesData[key] || { stamina: 0, strength: 0, magic: 0, goddessBlessing: 0 })
-              : (mastersData[key] || { name: `第 ${masterNum} 關關主`, stamina: 0, strength: 0, magic: 0 });
+              : (mastersData[key] || { name: `${beastNames[masterNum - 1] || '神'}獸`, stamina: 100, strength: 20, magic: 20 });
             
             const tStats = stats as TribeStats;
 
@@ -135,7 +130,7 @@ export default function MemberPage() {
 
             const displayName = viewMode === 'tribes'
               ? `第 ${groupNames[index]} 小組`
-              : (stats as StageMaster).name || `第 ${masterNum} 關關主`;
+              : (stats as StageMaster).name || `${beastNames[masterNum - 1] || '神'}獸`;
             const masterStats = stats as StageMaster;
 
             return (
