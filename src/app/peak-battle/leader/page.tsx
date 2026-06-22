@@ -125,12 +125,12 @@ function LeaderContent() {
     });
   };
 
-  // 🔒 驗證守門：Auth 確認前完全不渲染頁面，防止直接用 URL 繞過登入
-  if (isCheckingAuth) return (
+  // 🔒 驗證守門：Auth 確認前或資料載入前完全不渲染頁面，防止閃爍與繞過登入
+  if (isCheckingAuth || !isStatsLoaded || !isBattleLoaded) return (
     <div className="min-h-screen bg-[#f5f0e6] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-stone-500">
         <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
-        <p className="font-bold text-lg">驗證身份中...</p>
+        <p className="font-bold text-lg">載入戰場資料中...</p>
       </div>
     </div>
   );

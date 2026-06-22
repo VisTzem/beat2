@@ -13,6 +13,8 @@ import Link from "next/link";
 export default function BossPage() {
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isBattleLoaded, setIsBattleLoaded] = useState(false);
+  const [isTribesLoaded, setIsTribesLoaded] = useState(false);
 
   // 初始化 Boss 三圍設為 676, 76, 67，預設名稱為黑化原始馬——木馬
   const [bossState, setBossState] = useState({ hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" });
@@ -59,6 +61,7 @@ export default function BossPage() {
           teams: groupKeys.reduce((acc, key) => ({ ...acc, [key]: { action: "", status: "preparing" } }), {})
         });
       }
+      setIsBattleLoaded(true);
     });
 
     const tribesRef = ref(db, `tribes`);
@@ -66,6 +69,7 @@ export default function BossPage() {
       if (snapshot.exists()) {
         setTribesData(snapshot.val());
       }
+      setIsTribesLoaded(true);
     });
 
     return () => {
@@ -234,7 +238,12 @@ export default function BossPage() {
     alert("回合結算完成！");
   };
 
-  if (isCheckingAuth) return <div className="min-h-screen bg-stone-900 flex items-center justify-center text-white">驗證中...</div>;
+  if (isCheckingAuth || !isBattleLoaded || !isTribesLoaded) return (
+    <div className="min-h-screen bg-stone-900 flex flex-col items-center justify-center text-stone-400 gap-4">
+      <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+      <p className="font-bold text-lg">載入戰域資料中...</p>
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-stone-900 text-stone-100 p-4 md:p-8 relative pt-16 md:pt-8">
