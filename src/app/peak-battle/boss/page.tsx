@@ -89,6 +89,17 @@ export default function BossPage() {
     await update(ref(db, `peakBattle/boss`), { maxHp: currentHp });
   };
 
+  const handleResetBossDefault = async () => {
+    if (!confirm("確定要將 黑化原始馬——木馬 恢復成預設數值 (生命676, 力量76, 魔力67) 嗎？")) return;
+    await update(ref(db, `peakBattle/boss`), {
+      hp: 676,
+      maxHp: 676,
+      strength: 76,
+      magic: 67
+    });
+    alert("已成功恢復預設值！");
+  };
+
   // 陣亡的隊伍數量 (6組)
   const deadTeamsCount = groupKeys.filter(key => (tribesData[key]?.stamina || 0) <= 0).length;
 
@@ -264,10 +275,10 @@ export default function BossPage() {
             <p className="text-stone-500 text-sm font-bold">小組員可選用物理/魔法攻擊，將其徹底瓦解</p>
 
             <button
-              onClick={() => handleBossStatChange("hp", 676)}
+              onClick={handleResetBossDefault}
               className="mx-auto mt-6 bg-stone-850 border border-stone-700 hover:bg-stone-800 px-6 py-3 rounded-xl font-bold text-sm text-stone-300 transition-all flex items-center gap-2"
             >
-              <RefreshCw size={16} /> 重設生命值為 676
+              <RefreshCw size={16} /> 恢復預設數值 (生命 676, 力量 76, 魔力 67)
             </button>
           </motion.div>
         </div>
@@ -348,7 +359,15 @@ export default function BossPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
             {/* Boss 三圍調整 */}
             <div className="flex flex-col gap-4 bg-stone-900/50 p-6 rounded-2xl border border-stone-700">
-              <h2 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-2">數值調整</h2>
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-sm font-bold text-stone-400 uppercase tracking-widest">數值調整</h2>
+                <button
+                  onClick={handleResetBossDefault}
+                  className="text-xs bg-stone-800 hover:bg-stone-700 border border-stone-600 text-amber-400 px-3 py-1 rounded-lg transition-colors font-black flex items-center gap-1"
+                >
+                  <RefreshCw size={12} /> 設為預設 (676/76/67)
+                </button>
+              </div>
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-rose-400 font-black w-24"><Heart size={18}/> 血量</span>
                 <input type="number" value={bossState.hp} onChange={e => handleBossStatChange("hp", parseInt(e.target.value))} className="bg-stone-800 text-white font-black text-center w-24 py-2 rounded-lg outline-none" />
