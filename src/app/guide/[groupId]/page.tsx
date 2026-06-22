@@ -31,6 +31,7 @@ export default function GuideDashboardPage() {
   const [diceRoll, setDiceRoll] = useState(1);
   const [manualValue, setManualValue] = useState<string>("5");
   const [confirmAction, setConfirmAction] = useState<any | null>(null);
+  const [showStagePrompt, setShowStagePrompt] = useState(false);
 
   // 根據女神祝福層數決定基礎值（固定，不可手動更改）
   const blessingCount = typeof currentStats.goddessBlessing === 'number'
@@ -68,10 +69,25 @@ export default function GuideDashboardPage() {
     return () => { unsubTribe(); unsubMasters(); document.removeEventListener("visibilitychange", handleVisibility); };
   }, [groupId]);
 
-  const executeAction = async () => {
+  const handleConfirmStep1 = () => {
+    setShowStagePrompt(true);
+  };
+
+  const handleSelectStage = async (stageNum: number | 'skip') => {
     if (!confirmAction) return;
-    await update(ref(db, `tribes/${groupId}`), confirmAction.payload.targetStats);
+    const targetStats = { ...confirmAction.payload.targetStats };
+    if (stageNum !== 'skip') {
+      const stageKey = `stage${stageNum}`;
+      targetStats[stageKey] = (currentStats[stageKey as keyof TribeStats] as number || 0) + 1;
+    }
+    await update(ref(db, `tribes/${groupId}`), targetStats);
     setConfirmAction(null);
+    setShowStagePrompt(false);
+  };
+
+  const handleCancelAll = () => {
+    setConfirmAction(null);
+    setShowStagePrompt(false);
   };
 
   const autoGain = baseValues[selectedStageType] + (difficulty * diceRoll);
@@ -343,23 +359,61 @@ export default function GuideDashboardPage() {
 
         {/* 確認 Modal */}
         <AnimatePresence>
-          {confirmAction && (() => {
-            const { title, colorTheme, icon: ActionIcon } = confirmAction.payload;
-            const colors = themeColors[colorTheme] || themeColors.stone;
-            return (
-              <div className="guide-modal-overlay">
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="guide-modal-content">
-                  <div className="guide-modal-icon" style={{ backgroundColor: colors.lightBg, color: colors.text }}><ActionIcon size={44} /></div>
-                  <h3 className="guide-modal-title">執行確認</h3>
-                  <p className="guide-modal-desc-text">{title}</p>
-                  <div className="guide-modal-actions">
-                    <button onClick={() => setConfirmAction(null)} className="guide-op-btn guide-btn-medium bg-stone-100 text-stone-600">取消</button>
-                    <button onClick={executeAction} className="guide-op-btn guide-btn-medium" style={{ backgroundColor: colors.bg, color: 'white' }}>確認執行</button>
+          {confirmAction && (
+            <div className="guide-modal-overlay">
+              {!showStagePrompt ? (
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="guide-modal-content">
+                  {(() => {
+                    const { title, colorTheme, icon: ActionIcon } = confirmAction.payload;
+                    const colors = themeColors[colorTheme] || themeColors.stone;
+                    return (
+                      <>
+                        <div className="guide-modal-icon" style={{ backgroundColor: colors.lightBg, color: colors.text }}><ActionIcon size={44} /></div>
+                        <h3 className="guide-modal-title">執行確認</h3>
+                        <p className="guide-modal-desc-text">{title}</p>
+                        <div className="guide-modal-actions">
+                          <button onClick={handleCancelAll} className="guide-op-btn guide-btn-medium bg-stone-100 text-stone-600">取消</button>
+                          <button onClick={handleConfirmStep1} className="guide-op-btn guide-btn-medium" style={{ backgroundColor: colors.bg, color: 'white' }}>確認執行</button>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </motion.div>
+              ) : (
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="guide-modal-content max-w-md w-full">
+                  <h3 className="guide-modal-title mb-2 text-stone-800 text-center">登錄完成的闖關關卡</h3>
+                  <p className="text-sm text-stone-500 mb-6 font-medium text-center">本次數值調整是否同時登錄以下神廟的闖關進度？</p>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-6 w-full">
+                    {["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"].map((temple, idx) => (
+                      <button
+                        key={temple}
+                        onClick={() => handleSelectStage(idx + 1)}
+                        className="py-3 px-2 rounded-xl bg-amber-50 border border-amber-200 hover:border-amber-500 text-amber-900 text-sm font-black transition-all shadow-sm"
+                      >
+                        {temple}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-col gap-2 w-full border-t border-stone-200 pt-4">
+                    <button
+                      onClick={() => handleSelectStage('skip')}
+                      className="w-full py-3.5 rounded-xl bg-stone-900 text-white hover:bg-stone-800 text-base font-black transition-all shadow-md"
+                    >
+                      略過 (僅調整數值)
+                    </button>
+                    <button
+                      onClick={handleCancelAll}
+                      className="w-full py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-500 text-sm font-bold transition-all"
+                    >
+                      取消本次變更
+                    </button>
                   </div>
                 </motion.div>
-              </div>
-            );
-          })()}
+              )}
+            </div>
+          )}
         </AnimatePresence>
       </div>
     </main>

@@ -13,10 +13,10 @@ import { StageMaster } from "@/types";
 import { LogOut, Home, Swords, Heart, Sword, Zap, Save, ShieldAlert, BookOpen, Tag } from "lucide-react";
 import Link from "next/link";
 
-const defaultStageNames = ["反偵察神廟", "曼巴神廟", "好帥神廟", "節奏神廟", "綜藝神廟", "特工神廟"];
+const defaultStageNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
 const defaultMasters: Record<string, StageMaster> = {};
-for (let i = 1; i <= 6; i++) {
-  defaultMasters[`master${i}`] = { name: `${defaultStageNames[i-1]}關主`, stageName: defaultStageNames[i-1], description: '', stamina: 0, strength: 0, magic: 0 };
+for (let i = 1; i <= 4; i++) {
+  defaultMasters[`master${i}`] = { name: `${defaultStageNames[i-1]}`, stageName: defaultStageNames[i-1], description: '', stamina: 100, strength: 20, magic: 20 };
 }
 
 export default function MastersDashboardPage() {

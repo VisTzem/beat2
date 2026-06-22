@@ -65,10 +65,13 @@ function MasterContent() {
     return () => unsubscribeAuth();
   }, [router]);
 
-  // 監聽關主自己的數值
+  // 監聽關主自己的數值 (第一階段使用 stageMasters)
   useEffect(() => {
     if (isCheckingAuth) return;
-    const masterRef = ref(db, `masters/${masterId}`);
+    const defaultMasterNames = ["外省老兵", "勞大", "車不優", "音遊詩人", "橙哥", "Kelly"];
+    const defaultMasterName = defaultMasterNames[masterIndex] || "關主";
+
+    const masterRef = ref(db, `stageMasters/${masterId}`);
     const unsubscribeMaster = onValue(masterRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -76,12 +79,21 @@ function MasterContent() {
           stamina: data.stamina || 0,
           strength: data.strength || 0,
           magic: data.magic || 0,
-          name: data.name || `${currentTempleName}關主`
+          name: data.name || defaultMasterName
+        });
+      } else {
+        // 初始化 stageMasters 資料
+        update(ref(db, `stageMasters/${masterId}`), {
+          name: defaultMasterName,
+          stamina: 100,
+          strength: 20,
+          magic: 20,
+          stageName: currentTempleName
         });
       }
     });
     return () => unsubscribeMaster();
-  }, [masterId, isCheckingAuth, currentTempleName]);
+  }, [masterId, isCheckingAuth, currentTempleName, masterIndex]);
 
   // 監聽選中小組的數值
   useEffect(() => {
@@ -229,9 +241,9 @@ function MasterContent() {
     const newTMag = Math.max(0, tMag + tMagDiff);
 
     const updates: Record<string, any> = {};
-    updates[`masters/${masterId}/stamina`] = newMHp;
-    updates[`masters/${masterId}/strength`] = newMStr;
-    updates[`masters/${masterId}/magic`] = newMMag;
+    updates[`stageMasters/${masterId}/stamina`] = newMHp;
+    updates[`stageMasters/${masterId}/strength`] = newMStr;
+    updates[`stageMasters/${masterId}/magic`] = newMMag;
 
     updates[`tribes/${selectedTribe}/stamina`] = newTHp;
     updates[`tribes/${selectedTribe}/strength`] = newTStr;
