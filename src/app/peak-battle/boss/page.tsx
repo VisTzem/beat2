@@ -16,9 +16,9 @@ export default function BossPage() {
   const [isBattleLoaded, setIsBattleLoaded] = useState(false);
   const [isTribesLoaded, setIsTribesLoaded] = useState(false);
 
-  // 初始化 Boss 三圍設為 676, 76, 67，預設名稱為黑化原始碼——木馬
+  // 初始化 Boss 三圍設為 676, 76, 67，預設名稱為黑化原始馬——木馬
   const [bossState, setBossState] = useState({ hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" });
-  const [bossName, setBossName] = useState("黑化原始碼——木馬");
+  const [bossName, setBossName] = useState("黑化原始馬——木馬");
   const [round, setRound] = useState(1);
   const [teamsState, setTeamsState] = useState<Record<string, any>>({});
   const [tribesData, setTribesData] = useState<Record<string, any>>({});
@@ -45,7 +45,7 @@ export default function BossPage() {
         setRound(data.round || 1);
         if (data.boss) {
           setBossState(data.boss);
-          setBossName(data.boss.name || "黑化原始碼——木馬");
+          setBossName(data.boss.name || "黑化原始馬——木馬");
           if (data.boss.status === "preparing" && !data.boss.action) {
             setSelectedAction("");
           }
@@ -54,10 +54,10 @@ export default function BossPage() {
           setTeamsState(data.teams);
         }
       } else {
-        // 初始化 peakBattle 資料 (三圍 676, 76, 67, 名稱黑化原始碼——木馬)
+        // 初始化 peakBattle 資料 (三圍 676, 76, 67, 名稱黑化原始馬——木馬)
         update(ref(db, `peakBattle`), {
           round: 1,
-          boss: { name: "黑化原始碼——木馬", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" },
+          boss: { name: "黑化原始馬——木馬", hp: 676, maxHp: 676, strength: 76, magic: 67, action: "", status: "preparing" },
           teams: groupKeys.reduce((acc, key) => ({ ...acc, [key]: { action: "", status: "preparing" } }), {})
         });
       }
@@ -94,7 +94,7 @@ export default function BossPage() {
   };
 
   const handleResetBossDefault = async () => {
-    if (!confirm("確定要將 黑化原始碼——木馬 恢復成預設數值 (生命676, 力量76, 魔力67) 嗎？")) return;
+    if (!confirm("確定要將 黑化原始馬——木馬 恢復成預設數值 (生命676, 力量76, 魔力67) 嗎？")) return;
     await update(ref(db, `peakBattle/boss`), {
       hp: 676,
       maxHp: 676,
