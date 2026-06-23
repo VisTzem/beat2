@@ -66,7 +66,7 @@ export default function MemberPage() {
   const groupKeys = ["group1", "group2", "group3", "group4", "group5", "group6"];
   const groupNames = ["一", "二", "三", "四", "五", "六"];
 
-  const activeMasterKeys = ["master1", "master2", "master3", "master4"];
+  const activeMasterKeys = ["master1", "master2", "master3", "master4", "master5", "master6"];
 
   return (
     <main className="relative flex flex-col items-center min-h-screen member-main-bg text-stone-900">
@@ -109,10 +109,10 @@ export default function MemberPage() {
 
           {(viewMode === 'tribes' ? groupKeys : activeMasterKeys).map((key, index) => {
             const masterNum = parseInt(key.replace("master", "")) || (index + 1);
-            const beastNames = ["日月", "炎", "海", "雷"];
+            const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸", "祭司", "獅子族大統領喵喵"];
             const stats = viewMode === 'tribes' 
               ? (tribesData[key] || { stamina: 0, strength: 0, magic: 0, goddessBlessing: 0 })
-              : (mastersData[key] || { name: `${beastNames[masterNum - 1] || '神'}獸`, stamina: 100, strength: 20, magic: 20 });
+              : (mastersData[key] || { name: beastNames[masterNum - 1] || '神獸', stamina: 100, strength: 20, magic: 20 });
             
             const tStats = stats as TribeStats;
 
@@ -130,7 +130,7 @@ export default function MemberPage() {
 
             const displayName = viewMode === 'tribes'
               ? `第 ${groupNames[index]} 小組`
-              : (stats as StageMaster).name || `${beastNames[masterNum - 1] || '神'}獸`;
+              : (stats as StageMaster).name || beastNames[masterNum - 1] || '神獸';
             const masterStats = stats as StageMaster;
 
             return (

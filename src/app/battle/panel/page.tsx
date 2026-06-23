@@ -36,7 +36,7 @@ export default function BattlePanelPage() {
 
   const groupKeys = ["group1", "group2", "group3", "group4", "group5", "group6"];
   const groupNames = ["一", "二", "三", "四", "五", "六"];
-  const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
+  const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸", "祭司", "獅子族大統領喵喵"];
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -77,7 +77,7 @@ export default function BattlePanelPage() {
   const handleExecuteSettle = async () => {
     if (!masterAction || !tribeAction) return alert("請先選擇雙方的行動！");
 
-    const mStats = mastersData[selectedMaster] || { stamina: 100, strength: 20, magic: 20, name: beastNames[0] };
+    const mStats = mastersData[selectedMaster] || { stamina: 100, strength: 20, magic: 20, name: beastNames[parseInt(selectedMaster.replace("master", "")) - 1] || "神獸" };
     const tStats = tribesData[selectedTribe] || { stamina: 30, strength: 10, magic: 10 };
 
     const mHp = Number(mStats.stamina) || 0;
@@ -232,23 +232,12 @@ export default function BattlePanelPage() {
                   }}
                   className="bg-stone-950 border border-stone-800 text-amber-400 font-black px-4 py-2 rounded-xl outline-none text-sm cursor-pointer hover:border-amber-500/50 transition-colors"
                 >
-                  {Object.keys(mastersData).length > 0 ? (
-                    Object.keys(mastersData).sort((a, b) => {
-                      const numA = parseInt(a.replace("master", "")) || 0;
-                      const numB = parseInt(b.replace("master", "")) || 0;
-                      return numA - numB;
-                    }).slice(0, 4).map((key) => {
-                      const idx = parseInt(key.replace("master", "")) - 1;
-                      const name = mastersData[key]?.name || beastNames[idx] || `神獸 ${idx + 1}`;
-                      return (
-                        <option key={key} value={key} className="bg-stone-900 text-stone-100">{name}</option>
-                      );
-                    })
-                  ) : (
-                    beastNames.map((name, i) => (
-                      <option key={`master${i + 1}`} value={`master${i + 1}`} className="bg-stone-900 text-stone-100">{name}</option>
-                    ))
-                  )}
+                  {Array.from({ length: 6 }, (_, i) => `master${i + 1}`).map((key, idx) => {
+                    const name = mastersData[key]?.name || beastNames[idx] || `神獸 ${idx + 1}`;
+                    return (
+                      <option key={key} value={key} className="bg-stone-900 text-stone-100">{name}</option>
+                    );
+                  })}
                 </select>
               </div>
 

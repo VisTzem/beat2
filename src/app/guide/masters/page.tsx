@@ -13,9 +13,9 @@ import { StageMaster } from "@/types";
 import { LogOut, Home, Swords, Heart, Sword, Zap, Save, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
-const defaultStageNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
+const defaultStageNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸", "祭司", "獅子族大統領喵喵"];
 const defaultMasters: Record<string, StageMaster> = {};
-for (let i = 1; i <= 4; i++) {
+for (let i = 1; i <= 6; i++) {
   defaultMasters[`master${i}`] = { name: `${defaultStageNames[i-1]}`, stamina: 100, strength: 20, magic: 20 };
 }
 
@@ -66,7 +66,7 @@ export default function MastersDashboardPage() {
   };
 
   const handleResetDefault = async (id: string) => {
-    const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸"];
+    const beastNames = ["日月神獸", "炎神獸", "海神獸", "雷神獸", "祭司", "獅子族大統領喵喵"];
     const idx = parseInt(id.replace("master", "")) - 1;
     const defaultName = beastNames[idx] || "神獸";
     
