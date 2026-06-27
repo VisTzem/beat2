@@ -67,7 +67,7 @@ export default function PeakBattleLoginPage() {
                 className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 font-black transition-all ${role === 'leader' ? 'bg-stone-900 text-amber-400 shadow-xl scale-105' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'}`}
               >
                 <Users size={28} />
-                <span>我是隊輔</span>
+                <span>女神像</span>
               </button>
               <button
                 type="button"

@@ -234,8 +234,8 @@ export default function Home() {
         </div>
 
         <div className="home-nav-grid" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <NavCard href="/member" title="我是組員" description="查看各組即時積分、排名與戰況" icon={Users} isPrimary={true} />
-          <NavCard href="/guide" title="我是隊輔" description="登入控制台，管理組別與調整分數" icon={ShieldCheck} isPrimary={false} />
+          <NavCard href="/member" title="部落看板" description="查看各組即時積分、排名與戰況" icon={Users} isPrimary={true} />
+          <NavCard href="/guide" title="女神像" description="登入控制台，管理組別與調整分數" icon={ShieldCheck} isPrimary={false} />
           <NavCard href="/battle" title="巔峰之爭" description="面對面雙人對戰控制面板" icon={Swords} isPrimary={true} />
           <NavCard href="/peak-battle" title="原始馬?" description="全體回合制對戰系統" icon={Swords} isPrimary={false} />
         </div>
